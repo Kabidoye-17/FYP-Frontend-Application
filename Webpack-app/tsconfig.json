@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    // Target modern JavaScript
+    "target": "ES2020",
+
+    // Use modern module system
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    // Enable JSX for React
+    "jsx": "react-jsx",
+
+    // Module resolution
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Type checking
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Output
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Allow importing JS files alongside TS files
+    "allowJs": true,
+
+    // Don't emit files (webpack handles this)
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build"
+  ]
+}

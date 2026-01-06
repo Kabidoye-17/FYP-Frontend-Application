@@ -29,11 +29,11 @@
     // Allow importing JS files alongside TS files
     "allowJs": true,
 
-    // Don't emit files (webpack handles this)
-    "noEmit": true
+    "noEmit": false,
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "src/global.d.ts"
   ],
   "exclude": [
     "node_modules",

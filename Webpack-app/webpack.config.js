@@ -2,6 +2,7 @@
 
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 
 const package = require("./package.json");
@@ -46,15 +47,18 @@ module.exports = {
       template: "public/index.html", // Source HTML template
       filename: "index.html", // Output filename in build/
     }),
+    new CopyWebpackPlugin({
+    patterns: [{ from: "public", globOptions: { ignore: ["**/index.html"] } }],
+  }),
   ],
 
   // Development server configuration (used when running npm start)
   devServer: {
     port: port, // Port to run dev server on (default: 3000)
-    static: {
+    static: [{
       // Serve static files from this directory
       directory: commonPaths.outputPath,
-    },
+    },  { directory: path.resolve(__dirname, "public"), publicPath: "/" },],
     // Enable HTML5 History API routing (for React Router, etc.)
     // Redirects all 404s to index.html so your SPA can handle routing
     historyApiFallback: {
@@ -68,13 +72,10 @@ module.exports = {
   module: {
     rules: [
       {
-        // Process TypeScript files
+        // Process TypeScript files with ts-loader first (to handle type imports)
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: [
-          {
-            loader: "babel-loader",
-          },
           {
             loader: "ts-loader",
           },
@@ -93,6 +94,6 @@ module.exports = {
   resolve: {
     // Allow importing files without specifying these extensions
     // Example: import App from './App' (will find App.js, App.jsx, App.ts, or App.tsx)
-    extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
   },
 };

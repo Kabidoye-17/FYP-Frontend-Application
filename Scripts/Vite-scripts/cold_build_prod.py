@@ -32,8 +32,8 @@ def run_cold_build_prod():
         # Pattern: "✓ built in 1.23s"
         time_match = re.search(r'built in ([\d.]+)s', clean_output)
 
-        # Pattern: "dist/assets/index-DMZfzCFe.js   193.92 kB"
-        size_match = re.search(r'dist/assets/index-\w+\.js\s+([\d.]+)\s+(kB|KB|MB)', clean_output)
+        # Pattern: "dist/assets/index-DMZfzCFe.js   193.92 kB" or "dist/assets/index-DPH5jhNa.js  5,265.31 kB"
+        size_match = re.search(r'dist/assets/index-\w+\.js\s+([\d,]+\.?\d*)\s+(kB|KB|MB)', clean_output)
 
         if not time_match or not size_match:
             print(f"\nFailed to extract metrics. Output:\n{clean_output[-800:]}")
@@ -42,7 +42,8 @@ def run_cold_build_prod():
         build_time_s = float(time_match.group(1))
         build_time_ms = int(build_time_s * 1000)
 
-        size_value = float(size_match.group(1))
+        # Remove commas from size value before converting to float
+        size_value = float(size_match.group(1).replace(',', ''))
         size_unit = size_match.group(2)
 
         # Convert to KiB

@@ -29,8 +29,10 @@ def run_cold_build_prod():
         ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
         clean_output = ansi_escape.sub('', output)
 
-        time_match = re.search(r'webpack.*compiled successfully in (\d+) ms', clean_output)
-        size_match = re.search(r'asset\s+[\d.]+/js/\S+\.js\s+(\d+(?:\.\d+)?)\s+(KiB|MiB|bytes)\s+.*\[minimized\]', clean_output)
+        # Match "compiled successfully in X ms" or "compiled with N warnings in X ms"
+        time_match = re.search(r'webpack.*compiled.*in (\d+) ms', clean_output)
+        # Match both old format "asset X.js Y KiB [minimized]" and new format "X.js (Y MiB)" from warnings
+        size_match = re.search(r'(?:asset\s+)?[\d.]+/js/\S+\.js\s+(?:\()?(\d+(?:\.\d+)?)\s+(KiB|MiB|bytes)(?:\))?', clean_output)
 
         if not time_match or not size_match:
             print(f"\nFailed to extract metrics. Output:\n{clean_output[-800:]}")

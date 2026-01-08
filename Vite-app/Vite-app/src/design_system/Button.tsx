@@ -1,9 +1,7 @@
 import type { ComponentPropsWithoutRef } from 'react';
-import { Slot } from '@radix-ui/react-slot';
 import styled from 'styled-components';
 
 interface ButtonProps extends ComponentPropsWithoutRef<'button'> {
-  asChild?: boolean;
   withIcon?: boolean;
   icon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -18,8 +16,8 @@ const StyledButton = styled.button<{ $iconOnly: boolean, backgroundColor?: strin
   justify-content: center;
   gap: 0.5rem;
   padding: ${({ $iconOnly }) => ($iconOnly ? '0.5rem' : '0.5rem 1rem')};
-  background-color: ${({ backgroundColor }) => backgroundColor || '#ffffff'};
-  color: ${({ color }) => color || 'white'};
+  background-color: ${({ backgroundColor }) => backgroundColor || 'var(--white)'};
+  color: ${({ color }) => color || 'var(--black)'};
   border: none;
   border-radius: 0.375rem;
   cursor: pointer;
@@ -43,7 +41,6 @@ const StyledButton = styled.button<{ $iconOnly: boolean, backgroundColor?: strin
 `;
 
 function Button({
-  asChild = false,
   withIcon = false,
   icon = null,
   rightIcon = null,
@@ -53,17 +50,16 @@ function Button({
   children,
   ...props
 }: Readonly<ButtonProps>) {
-  const Comp = asChild ? Slot : StyledButton;
 
   const displayIcon = icon || rightIcon;
   const isRightIcon = !icon && rightIcon;
 
   return (
-    <Comp $iconOnly={IconOnly} backgroundColor={backgroundColor} color={color} {...props}>
+    <StyledButton $iconOnly={IconOnly} backgroundColor={backgroundColor} color={color} {...props}>
       {!isRightIcon && displayIcon}
       {!IconOnly && children}
       {isRightIcon && displayIcon}
-    </Comp>
+    </StyledButton>
   );
 }
 

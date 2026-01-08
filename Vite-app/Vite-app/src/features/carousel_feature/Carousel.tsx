@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 import type { IconName } from './CarouselCardBody';
-import Button from '../design_system/Button';
-import Icon from '../design_system/Icon';
+import Button from '../../design_system/Button';
+import Icon from '../../design_system/Icon';
 import CarouselCard from './CarouselCard';
 
 const CarouselSection = styled.div`
@@ -116,8 +116,8 @@ function Carousel() {
                         <Button
                             onClick={handlePrev}
                             IconOnly
-                            backgroundColor='#E3C18A'
-                            icon={<Icon name="CaretLeft" size={24} color="#ffffff" />}
+                            backgroundColor='var(--tan)'
+                            icon={<Icon name="CaretLeft" size={24} color="var(--white)" />}
                         />
                     </NavButton>
                     <CarouselTrack>
@@ -136,8 +136,8 @@ function Carousel() {
                         <Button
                             onClick={handleNext}
                             IconOnly
-                            backgroundColor='#E3C18A'
-                            icon={<Icon name="CaretRight" size={24} color="#ffffff" />}
+                            backgroundColor='var(--tan)'
+                            icon={<Icon name="CaretRight" size={24} color="var(--white)" />}
                         />
                     </NavButton>
                 </CarouselContainer>

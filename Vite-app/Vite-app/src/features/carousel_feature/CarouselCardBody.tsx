@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Icon from "../design_system/Icon";
+import Icon from "../../design_system/Icon";
 import * as PhosphorIcons from '@phosphor-icons/react';
 
 export type IconName = keyof typeof PhosphorIcons;
@@ -7,7 +7,7 @@ export type IconName = keyof typeof PhosphorIcons;
 const BodyContainer = styled.div`
     width: 100%;
     height: 100%;
-    background-color: #ffffff;
+    background-color: var(--white);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -16,7 +16,7 @@ const BodyContainer = styled.div`
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     font-size: 0.95rem;
-    color: #333333;
+    color: var(--text-primary);
     text-align: center;
     box-shadow:
         rgba(0, 0, 0, 0.24) -3px 0px 8px,
@@ -45,7 +45,7 @@ function CarouselCardBody({ description, iconName }: Readonly<CarouselCardBodyPr
   return (
     <BodyContainer>
         <IconContainer>
-            <Icon name={displayIconName} size={48} color="#b24f9f" weight="regular" />
+            <Icon name={displayIconName} size={48} color="var(--plum)" weight="regular" />
         </IconContainer>
         <TextContainer> {description} </TextContainer>
     </BodyContainer>

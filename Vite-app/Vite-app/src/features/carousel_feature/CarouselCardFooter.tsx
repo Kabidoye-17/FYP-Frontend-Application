@@ -3,7 +3,7 @@ import styled from "styled-components";
 const FooterContainer = styled.div`
     width: 100%;
     height: 15%;
-    background-color: #6945CA;
+    background-color: var(--purple);
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     display: flex;
@@ -17,7 +17,7 @@ const FooterContainer = styled.div`
         rgba(0, 0, 0, 0.24) -3px 0px 8px,
         rgba(0, 0, 0, 0.24) 0px 3px 8px,
         rgba(0, 0, 0, 0.24) 3px 0px 8px;
-    color: #ffffff;
+    color: var(--white);
 `;
 
 interface CarouselCardFooterProps {

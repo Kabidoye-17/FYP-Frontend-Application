@@ -9,7 +9,7 @@ interface IconProps extends PhosphorIconProps {
 
 const Icon: React.FC<IconProps> = ({
   name,
-  color = '#ffffff',
+  color = 'var(--white)',
   size = 24,
   weight = 'regular',
   ...props

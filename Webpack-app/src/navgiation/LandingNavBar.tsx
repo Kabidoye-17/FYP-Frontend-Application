@@ -1,61 +1,32 @@
-import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import Icon from '../design_system/Icon';
 import Button from '../design_system/Button';
-
-const NavBarContainer = styled.nav`
-  width: 100%;
-  min-height: 4rem;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  border-bottom: 1px solid #d47ec3ff;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  margin-bottom: 2rem;
-  padding: 0.75rem 0;
-`;
-
-const LeftContainer = styled.div`
-  width: 20em;
-  height: 97%;
-  background-color: #FFFEFC;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-
-`;
-
-const RightContainer = styled.div`
-    width: 100%;
-    height: 97%;
-    background-color: #FFFEFC;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 1rem;
-    padding-right: 4rem;
-`;
-
-const BrandName = styled.h1`
-  font-family: "Roboto Mono", monospace;
-  font-weight: 300;
-  font-size: 1.5rem;
-  color: #B24F9F;
-`;
+import { BrandName, LeftContainer, RightContainer, NavBarContainer } from './PlainNavBar';
 
 function LandingNavBar() {
+  const navigate = useNavigate();
+
   return (
     <NavBarContainer>
       <LeftContainer>
-        <Icon name="HourglassHigh" size={28} color="#B24F9F" weight='regular'/>
+        <Icon name="HourglassHigh" size={28} color="var(--plum)" weight='regular'/>
         <BrandName>Planora</BrandName>
       </LeftContainer>
       <RightContainer>
-        <Button backgroundColor='#ffffff' color='#B24F9F'> Login </Button>
-        <Button backgroundColor='#B24F9F' color='#ffffff'> Sign Up </Button>
+        <Button 
+          backgroundColor='var(--white)' 
+          color='var(--plum)'
+          onClick={() => navigate('/login')}
+          > 
+            Login 
+          </Button>
+        <Button
+          backgroundColor='var(--plum)'
+          color='var(--white)'
+          onClick={() => navigate('/signup')}
+        >
+          Sign Up
+        </Button>
       </RightContainer>
     </NavBarContainer>
   );

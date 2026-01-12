@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import * as Table from "../design_system/Table";
+import * as Table from "../../design_system/Table";
 import type { ReactNode } from "react";
 
 interface ViewIssuesPageTableCellProps {
@@ -7,7 +7,7 @@ interface ViewIssuesPageTableCellProps {
   children: ReactNode;
 }
 
-const TextCell = styled(Table.Cell)`
+export const TextCell = styled(Table.Cell)`
   font-size: 0.8125rem;
   color: var(--text-primary);
   padding: 0.5rem 0.75rem;

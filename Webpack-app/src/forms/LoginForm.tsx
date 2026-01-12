@@ -9,7 +9,6 @@ import { MainContainer, IconContainer, FormContainer } from './SignUpForm';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
-
 const LabelInputContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -17,7 +16,7 @@ const LabelInputContainer = styled.div`
 `;
 
 function LoginForm() {
-     const navigate = useNavigate();
+    const navigate = useNavigate();
      const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
     
@@ -26,7 +25,7 @@ function LoginForm() {
     
         if (isValid) {
           showToast.success('Login Successful');
-          
+           navigate('/home')
         } else {
           showToast.error('Invalid credentials');
         }

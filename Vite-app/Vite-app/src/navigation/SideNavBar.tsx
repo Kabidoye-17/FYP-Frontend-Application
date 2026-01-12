@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../design_system/Button";
 import Icon from "../design_system/Icon";
 import Avatar from "../design_system/Avatar";
@@ -58,9 +59,23 @@ const ButtonContainer = styled.div`
 `;
 
 function SideNavBar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleIssuesClick = () => {
+    navigate('/home/issues');
+  };
+
+  const handleProjectsClick = () => {
+    navigate('/home/projects');
+  };
+
+  const isIssuesActive = location.pathname.includes('/home/issues');
+  const isProjectsActive = location.pathname.includes('/home/projects');
+
   return (
     <SideNavBarContainer>
-        <TopSection>  
+        <TopSection>
           <TopLeftSection>
             <Avatar size="small" color="var(--plum)" name="Kelly"/>
             <NameContainer>Kelly</NameContainer>
@@ -96,15 +111,18 @@ function SideNavBar() {
         </TopSection>
 
         <ButtonContainer>
-        <SideNavButton
-
+          <SideNavButton
             title="Issues"
             icon={<Icon name="Archive" size={20} color="var(--text-primary)" weight='regular' />}
-        />
-        <SideNavButton
+            onClick={handleIssuesClick}
+            isActive={isIssuesActive}
+          />
+          <SideNavButton
             title="Projects"
-            icon={<Icon name="Folder" size={20} color="var(--text-primary)" weight='regular' />}  
-        />
+            icon={<Icon name="Folder" size={20} color="var(--text-primary)" weight='regular' />}
+            onClick={handleProjectsClick}
+            isActive={isProjectsActive}
+          />
         </ButtonContainer>
     </SideNavBarContainer>
   );

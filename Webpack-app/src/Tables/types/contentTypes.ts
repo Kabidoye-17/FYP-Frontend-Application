@@ -16,4 +16,19 @@ export interface IssueSection {
   issues: Issue[];
 }
 
-export type IssueSectionTitle = "Backlog" | "In Progress" | "Completed";
+export interface Project {
+  id: string;
+  team: string;
+  projectName: string;
+  lead: {
+    name: string;
+    color: string;
+  };
+  priority: string;
+  status: string;
+}
+
+export interface ProjectSection {
+  title: string;
+  projects: Project[];
+}

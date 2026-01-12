@@ -2,7 +2,6 @@ import type { ComponentPropsWithoutRef } from 'react';
 import styled from 'styled-components';
 
 interface ButtonProps extends ComponentPropsWithoutRef<'button'> {
-  withIcon?: boolean;
   icon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   IconOnly?: boolean;
@@ -41,7 +40,6 @@ const StyledButton = styled.button<{ $iconOnly: boolean, backgroundColor?: strin
 `;
 
 function Button({
-  withIcon = false,
   icon = null,
   rightIcon = null,
   IconOnly = false,

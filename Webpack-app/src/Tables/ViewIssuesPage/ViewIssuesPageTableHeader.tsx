@@ -1,4 +1,4 @@
-import * as Table from "../design_system/Table";
+import * as Table from "../../design_system/Table";
 
 function ViewIssuesPageTableHeader() {
   return (

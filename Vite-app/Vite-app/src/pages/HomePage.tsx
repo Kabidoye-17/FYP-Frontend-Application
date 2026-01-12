@@ -1,7 +1,8 @@
 import styled from "styled-components";
+import { Outlet, useLocation } from "react-router-dom";
 import SideNavBar from "../navigation/SideNavBar";
-import PlainNavBar from "../navigation/PlainNavBar";
-import ViewIssuesPage from "./ViewIssuesPage";
+import ViewPageHeader from "../navigation/Headers/ViewPageHeader";
+import { PageContainer as PageContentWrapper, TableScrollContainer } from "./ViewIssuesPage";
 
 const PageContainer = styled.div`
     display: flex;
@@ -19,14 +20,21 @@ const ContentContainer = styled.div`
 
 
 function HomePage() {
+  const location = useLocation();
+  const currentPageTitle = location.pathname.includes('issues') ? 'Issues' : 'Projects';
+
   return (
     <PageContainer>
-        <SideNavBar />
+      <SideNavBar />
       <ContentContainer>
-        <ViewIssuesPage />
+        <PageContentWrapper>
+          <ViewPageHeader>{currentPageTitle}</ViewPageHeader>
+          <TableScrollContainer>
+            <Outlet />
+          </TableScrollContainer>
+        </PageContentWrapper>
       </ContentContainer>
     </PageContainer>
-
   );
 }
 export default HomePage;

@@ -14,11 +14,15 @@ const HeaderContainer = styled.div`
     padding-left: 1rem;
     `;
 
-function ViewIssuesPageHeader() {
+interface ViewPageHeaderProps {
+    children?: React.ReactNode;
+}
+
+function ViewPageHeader({ children }: Readonly<ViewPageHeaderProps>) {
     return (
         <HeaderContainer>
-            Issues
+           {children}
         </HeaderContainer>
     );
 }
-export default ViewIssuesPageHeader;
+export default ViewPageHeader;

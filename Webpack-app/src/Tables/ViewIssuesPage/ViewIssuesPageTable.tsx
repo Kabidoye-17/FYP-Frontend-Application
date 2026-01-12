@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import ViewIssuesPageTableSection from "./ViewIssuesPageTableSection";
-import type { IssueSection } from "./types/issueTypes";
+import ViewIssuesPageTableSection from "../ViewIssuesPage/ViewIssuesPageTableSection";
+import type { IssueSection } from "../types/contentTypes";
 
-const TableContainer = styled.div`
+export const TableContainer = styled.div`
   width: 100%;
   padding: 1rem;
 `;

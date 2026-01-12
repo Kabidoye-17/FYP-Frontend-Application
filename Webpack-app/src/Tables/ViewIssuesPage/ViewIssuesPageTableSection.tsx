@@ -1,15 +1,15 @@
 import styled from "styled-components";
-import * as Table from "../design_system/Table";
-import ViewIssuesPageTableHeader from "./ViewIssuesPageTableHeader";
-import ViewIssuesPageTableRow from "./ViewIssuesPageTableRow";
-import type { Issue } from "./types/issueTypes";
+import * as Table from "../../design_system/Table";
+import ViewIssuesPageTableHeader from "../ViewIssuesPage/ViewIssuesPageTableHeader";
+import ViewIssuesPageTableRow from "../ViewIssuesPage/ViewIssuesPageTableRow";
+import type { Issue } from "../types/contentTypes";
 
 interface ViewIssuesPageTableSectionProps {
   title: string;
   issues: Issue[];
 }
 
-const SectionContainer = styled.div`
+export const SectionContainer = styled.div`
   margin-bottom: 1.5rem;
 
   &:last-child {
@@ -17,7 +17,7 @@ const SectionContainer = styled.div`
   }
 `;
 
-const SectionTitle = styled.h2`
+export const SectionTitle = styled.h2`
   font-family: "Inter", sans-serif;
   font-size: 0.75rem;
   font-weight: 700;

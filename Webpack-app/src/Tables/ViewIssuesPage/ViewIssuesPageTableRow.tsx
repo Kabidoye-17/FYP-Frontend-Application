@@ -1,10 +1,10 @@
-import * as Table from "../design_system/Table";
-import Avatar from "../design_system/Avatar";
-import Icon from "../design_system/Icon";
-import ViewIssuesPageTableCell from "./ViewIssuesPageTableCell";
-import type { Issue } from "./types/issueTypes";
-import { getPriorityIcon, getStatusIcon } from "../utils/issueIconMaps";
-import * as Tooltip from "../design_system/Tooltip";
+import * as Table from "../../design_system/Table";
+import Avatar from "../../design_system/Avatar";
+import Icon from "../../design_system/Icon";
+import ViewIssuesPageTableCell from "../ViewIssuesPage/ViewIssuesPageTableCell";
+import type { Issue } from "../types/contentTypes";
+import { getPriorityIcon, getStatusIcon } from "../../utils/issueIconMaps";
+import * as Tooltip from "../../design_system/Tooltip";
 
 interface ViewIssuesPageTableRowProps {
   issue: Issue;

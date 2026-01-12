@@ -21,7 +21,6 @@ function SignUpPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Simulate loading - replace with actual data fetching logic
         const timer = setTimeout(() => {
             setLoading(false);
         }, 1000);

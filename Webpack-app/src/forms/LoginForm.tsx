@@ -7,6 +7,8 @@ import { showToast } from '../utils/toast';
 import { Toaster } from 'react-hot-toast';
 import { MainContainer, IconContainer, FormContainer } from './SignUpForm';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+
 
 const LabelInputContainer = styled.div`
   display: flex;
@@ -15,7 +17,7 @@ const LabelInputContainer = styled.div`
 `;
 
 function LoginForm() {
-
+     const navigate = useNavigate();
      const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
     
@@ -24,6 +26,7 @@ function LoginForm() {
     
         if (isValid) {
           showToast.success('Login Successful');
+          
         } else {
           showToast.error('Invalid credentials');
         }

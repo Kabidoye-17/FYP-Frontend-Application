@@ -3,7 +3,7 @@ import Heading from '../design_system/Heading';
 import { MainContainer } from "./LandingPage";
 import Button from "../design_system/Button";
 import { useNavigate } from "react-router";
-import PlainNavBar from "../navgiation/PlainNavBar";
+import PlainNavBar from "../navigation/PlainNavBar";
 import Footer from "../footer/Footer";
 
 const ContentWrapper = styled.div`

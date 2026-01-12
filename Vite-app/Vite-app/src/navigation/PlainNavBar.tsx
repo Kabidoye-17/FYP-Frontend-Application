@@ -54,7 +54,6 @@ const navigate = useNavigate();
       <LeftContainer>
         <Button 
             backgroundColor='transparent' 
-            withIcon={true} 
             icon={<Icon name="HourglassHigh" size={28} color="var(--plum)" weight='regular'/>}
             onClick={() => navigate('/')}
             >

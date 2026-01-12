@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Footer from "../footer/Footer";
-import PlainNavBar from "../navgiation/PlainNavBar";
+import PlainNavBar from "../navigation/PlainNavBar";
 import LoginForm from "../forms/LoginForm";
 import { MainContainer } from "./LandingPage";
 import Button from "../design_system/Button";

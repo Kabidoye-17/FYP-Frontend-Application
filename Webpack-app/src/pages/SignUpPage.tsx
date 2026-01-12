@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import SignUpForm from "../forms/SignUpForm";
 import Footer from "../footer/Footer";
-import PlainNavBar from "../navgiation/PlainNavBar";
+import PlainNavBar from "../navigation/PlainNavBar";
 import { MainContainer } from "./LandingPage";
 import Button from "../design_system/Button";
 import { useNavigate } from "react-router-dom";

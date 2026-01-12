@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import LandingNavBar from '../navgiation/LandingNavBar';
+import LandingNavBar from '../navigation/LandingNavBar';
 import Button from '../design_system/Button';
 import Footer from '../footer/Footer';
 import Carousel from '../features/carousel_feature/Carousel';

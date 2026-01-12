@@ -1,4 +1,4 @@
-import PlainNavBar from "../navgiation/PlainNavBar";
+import PlainNavBar from "../navigation/PlainNavBar";
 import Footer from "../footer/Footer";
 import { MainContainer } from "../pages/LandingPage";
 import SignUpFormSkeleton from "./SignUpFormSkeleton";

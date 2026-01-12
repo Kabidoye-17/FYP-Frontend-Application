@@ -29,6 +29,12 @@ export const FormContainer = styled.form`
     justify-content: center;
     gap: 1.5rem;
     `;
+    
+const LabelInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+`;
 
 function SignUpForm() {
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,11 +57,19 @@ function SignUpForm() {
     </IconContainer>
     <Heading>Sign Up</Heading>
     <FormContainer onSubmit={handleSubmit}>
-    <Label color='var(--white)' backgroundColor='var(--plum)'>Email</Label>
+      <LabelInputContainer>
+      <Label color='var(--plum)' backgroundColor='transparent'>Username</Label>
+      <Input placeholder="Enter your username here" type='text' />
+      </LabelInputContainer>
+      <LabelInputContainer>
+    <Label color='var(--plum)' backgroundColor='transparent'>Email</Label>
       <Input placeholder="Enter your email here" type='email' />
-      <Label color='var(--white)' backgroundColor='var(--plum)'>Password</Label>
+      </LabelInputContainer>
+      <LabelInputContainer>
+      <Label color='var(--plum)' backgroundColor='transparent'>Password</Label>
       <Input placeholder="Enter your password here" type='password' />
       <Input placeholder="Confirm your password here" type='password' />
+      </LabelInputContainer>
       <Button type='submit' backgroundColor='var(--tan)' color='var(--white)'> Submit </Button>
     </FormContainer>
     <Toaster />

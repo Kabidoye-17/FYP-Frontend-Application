@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import ViewIssuesPageTableSection from "../ViewIssuesPage/ViewIssuesPageTableSection";
+import ViewIssuesPageTableSkeleton from "./ViewIssuesPageTableSkeleton";
 import type { IssueSection } from "../types/contentTypes";
 
 export const TableContainer = styled.div`
@@ -98,6 +100,20 @@ const mockSections: IssueSection[] = [
 ];
 
 function ViewIssuesPageTable() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <ViewIssuesPageTableSkeleton />;
+  }
+
   return (
     <TableContainer>
       {mockSections.map((section) => (

@@ -8,9 +8,15 @@ import HomePage from "./pages/HomePage";
 import * as Tooltip from "./design_system/Tooltip";
 import ViewIssuesPageTable from "./Tables/ViewIssuesPage/ViewIssuesPageTable";
 import ViewProjectsPageTable from "./Tables/ViewProjectsPage.tsx/ViewProjectsPageTable";
+import SettingsPage from "./pages/SettingsPage";
 
 
 function App() {
+  const getDefaultView = (): string => {
+    const defaultView = localStorage.getItem('defaultHomeView');
+    return defaultView === 'issues' ? 'issues' : 'projects';
+  };
+
   return (
       <>
         <GlobalStyles />
@@ -20,8 +26,9 @@ function App() {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/loginandregister" element={<LoginAndRegisterPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/home" element={<HomePage />}>
-              <Route index element={<Navigate to="projects" replace />} />
+              <Route index element={<Navigate to={getDefaultView()} replace />} />
               <Route path="issues" element={<ViewIssuesPageTable />} />
               <Route path="projects" element={<ViewProjectsPageTable />} />
             </Route>

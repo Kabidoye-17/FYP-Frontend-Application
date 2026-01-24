@@ -70,6 +70,10 @@ function SideNavBar() {
     navigate('/home/projects');
   };
 
+  const handleSettingsClick = () => {
+    navigate('/settings');
+  }
+
   const isIssuesActive = location.pathname.includes('/home/issues');
   const isProjectsActive = location.pathname.includes('/home/projects');
 
@@ -95,7 +99,7 @@ function SideNavBar() {
                     <Icon name="User" size={16} color="var(--text-primary)" weight='regular' />
                     Profile
                   </Dropdown.Item>
-                  <Dropdown.Item onSelect={() => console.log("Settings")}>
+                  <Dropdown.Item onSelect={handleSettingsClick}>
                     <Icon name="Gear" size={16} color="var(--text-primary)" weight='regular' />
                     Settings
                   </Dropdown.Item>

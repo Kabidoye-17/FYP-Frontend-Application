@@ -1,8 +1,9 @@
 build
-__pycache__/    
+__pycache__/
 outputs
 nul
 .claude/
+tmpclaude-*
 
 # Logs
 logs

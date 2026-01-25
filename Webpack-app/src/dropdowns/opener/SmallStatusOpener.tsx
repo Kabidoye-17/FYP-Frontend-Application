@@ -59,6 +59,7 @@ const SmallStatusOpener = forwardRef<HTMLButtonElement, SmallStatusOpenerProps>(
                 <IconContainer>
                     {statusIcon && (
                         <Icon
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             name={statusIcon.iconName as any}
                             size={16}
                             color={statusIcon.color}

@@ -1,8 +1,12 @@
 import styled from "styled-components";
+import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import SideNavBar from "../navigation/SideNavBar";
 import ViewPageHeader from "../navigation/Headers/ViewPageHeader";
 import { PageContainer as PageContentWrapper, TableScrollContainer } from "./ViewIssuesPage";
+import Button from "../design_system/Button";
+import Icon from "../design_system/Icon";
+import CreateIssueModal from "../modals/issue/CreateIssueModal";
 
 const PageContainer = styled.div`
     display: flex;
@@ -22,17 +26,38 @@ const ContentContainer = styled.div`
 function HomePage() {
   const location = useLocation();
   const currentPageTitle = location.pathname.includes('issues') ? 'Issues' : 'Projects';
+  const isIssuesPage = location.pathname.includes('issues');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   return (
     <PageContainer>
       <SideNavBar />
       <ContentContainer>
         <PageContentWrapper>
-          <ViewPageHeader>{currentPageTitle}</ViewPageHeader>
+          <ViewPageHeader
+            button={
+              <Button
+                backgroundColor='white'
+                color='var(--plum)'
+                rightIcon={<Icon name="Plus" size={20} color="var(--plum)" weight='bold' />}
+                onClick={() => isIssuesPage && setIsCreateModalOpen(true)}
+              >
+                {isIssuesPage ? 'Create Issue' : 'Create Project'}
+              </Button>
+            }
+          >
+            {currentPageTitle}
+          </ViewPageHeader>
           <TableScrollContainer>
             <Outlet />
           </TableScrollContainer>
         </PageContentWrapper>
+        {isIssuesPage && (
+          <CreateIssueModal
+            open={isCreateModalOpen}
+            onOpenChange={setIsCreateModalOpen}
+          />
+        )}
       </ContentContainer>
     </PageContainer>
   );

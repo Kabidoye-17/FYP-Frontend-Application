@@ -97,6 +97,7 @@ function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps
             handleClose();
         } catch (error) {
             showToast.error("Failed to create issue. Please try again.");
+            console.error("Error creating issue:", error);
         } finally {
             setIsSubmitting(false);
         }

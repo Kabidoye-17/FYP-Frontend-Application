@@ -11,17 +11,21 @@ const HeaderContainer = styled.div`
     colour: plum;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding-left: 1rem;
+    padding-right: 1rem;
     `;
 
 interface ViewPageHeaderProps {
     children?: React.ReactNode;
+    button?: React.ReactNode;
 }
 
-function ViewPageHeader({ children }: Readonly<ViewPageHeaderProps>) {
+function ViewPageHeader({ children, button }: Readonly<ViewPageHeaderProps>) {
     return (
         <HeaderContainer>
            {children}
+           {button && <div>{button}</div>}
         </HeaderContainer>
     );
 }

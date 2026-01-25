@@ -45,7 +45,7 @@ const TopLeftSection = styled.div`
 `;
 
 const NameContainer = styled.div`
-    margin-left: 0.5rem;  
+    margin-left: 0.5rem;
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     font-weight: 600;
@@ -130,6 +130,6 @@ function SideNavBar() {
         </ButtonContainer>
     </SideNavBarContainer>
   );
-}   
+}
 
 export default SideNavBar;

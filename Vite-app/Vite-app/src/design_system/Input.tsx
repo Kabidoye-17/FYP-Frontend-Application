@@ -14,10 +14,18 @@ interface InputProps {
     placeholder?: string;
     type: string;
     borderColor?: string;
+    value?: string;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
-function Input({ placeholder, type }: Readonly<InputProps>) {
-    return (    
-        <InputContainer  placeholder={placeholder} type={type} />
+function Input({ placeholder, type, borderColor, value, onChange }: Readonly<InputProps>) {
+    return (
+        <InputContainer
+            placeholder={placeholder}
+            type={type}
+            borderColor={borderColor}
+            value={value}
+            onChange={onChange}
+        />
     );
 }   
 

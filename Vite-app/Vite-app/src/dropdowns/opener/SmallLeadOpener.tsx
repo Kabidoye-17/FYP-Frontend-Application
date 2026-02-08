@@ -18,7 +18,7 @@ const OpenerButton = styled.button`
     font-size: 0.875rem;
     color: var(--text-primary);
     transition: background-color 0.15s ease;
-    min-width: 100px;
+    min-width: 80px;
     box-sizing: border-box;
 
     &:hover {

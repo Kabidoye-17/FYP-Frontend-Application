@@ -20,6 +20,7 @@ interface IssueFormData {
     assignees: string[];
     projectId: string | null;
     labels: string[];
+    targetDate: Date | null;
 }
 
 const DialogOverlay = styled(Dialog.Overlay)`
@@ -78,10 +79,11 @@ function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps
         assignees: [],
         projectId: null,
         labels: [],
+        targetDate: null,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFieldChange = (field: keyof IssueFormData, value: string | string[] | null) => {
+    const handleFieldChange = (field: keyof IssueFormData, value: string | string[] | Date | null) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -114,6 +116,7 @@ function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps
             assignees: [],
             projectId: null,
             labels: [],
+            targetDate: null,
         });
         onOpenChange(false);
     };

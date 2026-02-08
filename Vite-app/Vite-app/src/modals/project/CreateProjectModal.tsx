@@ -20,6 +20,7 @@ interface ProjectFormData {
     leadId: string | null;
     memberIds: string[];
     labels: string[];
+    targetDate: Date | null;
 }
 
 const DialogOverlay = styled(Dialog.Overlay)`
@@ -78,10 +79,11 @@ function CreateProjectModal({ open, onOpenChange }: Readonly<CreateProjectModalP
         leadId: null,
         memberIds: [],
         labels: [],
+        targetDate: null,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFieldChange = (field: keyof ProjectFormData, value: string | string[] | null) => {
+    const handleFieldChange = (field: keyof ProjectFormData, value: string | string[] | Date | null) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -114,6 +116,7 @@ function CreateProjectModal({ open, onOpenChange }: Readonly<CreateProjectModalP
             leadId: null,
             memberIds: [],
             labels: [],
+            targetDate: null,
         });
         onOpenChange(false);
     };

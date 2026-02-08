@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import Icon from "../../design_system/Icon";
 import { forwardRef } from "react";
-import { getStatusIcon, type StatusLevel } from "../../utils/issueIconMaps";
 
 const OpenerButton = styled.button`
     all: unset;
@@ -39,40 +38,44 @@ const IconContainer = styled.div`
     height: 16px;
 `;
 
-const StatusText = styled.span`
+const DateText = styled.span<{ $hasDate: boolean }>`
     flex: 1;
     text-align: left;
-    text-transform: capitalize;
+    color: ${({ $hasDate }) => $hasDate ? 'var(--text-primary)' : 'var(--text-secondary)'};
 `;
 
-
-interface SmallStatusOpenerProps {
-    status: StatusLevel;
+interface SmallTargetDateOpenerProps {
+    selectedDate: Date | null;
 }
 
-const SmallStatusOpener = forwardRef<HTMLButtonElement, SmallStatusOpenerProps>(
-    ({ status, ...props }, ref) => {
-        const statusIcon = getStatusIcon(status);
+function formatDate(date: Date): string {
+    return new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    }).format(date);
+}
+
+const SmallTargetDateOpener = forwardRef<HTMLButtonElement, SmallTargetDateOpenerProps>(
+    ({ selectedDate, ...props }, ref) => {
+        const hasDate = selectedDate !== null;
+        const displayText = hasDate ? formatDate(selectedDate) : 'Target';
 
         return (
             <OpenerButton ref={ref} {...props}>
                 <IconContainer>
-                    {statusIcon && (
-                        <Icon
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            name={statusIcon.iconName as any}
-                            size={16}
-                            color={statusIcon.color}
-                            weight={statusIcon.weight}
-                        />
-                    )}
+                    <Icon
+                        name="Timer"
+                        size={16}
+                        color={hasDate ? 'var(--text-primary)' : 'var(--text-secondary)'}
+                    />
                 </IconContainer>
-                <StatusText>{status}</StatusText>
+                <DateText $hasDate={hasDate}>{displayText}</DateText>
             </OpenerButton>
         );
     }
 );
 
-SmallStatusOpener.displayName = "SmallStatusOpener";
+SmallTargetDateOpener.displayName = "SmallTargetDateOpener";
 
-export default SmallStatusOpener;
+export default SmallTargetDateOpener;

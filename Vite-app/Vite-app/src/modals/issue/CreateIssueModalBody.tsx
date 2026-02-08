@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useState } from "react";
 import * as Dropdown from "../../design_system/Dropdown";
+import * as Popover from "../../design_system/Popover";
 import SmallStatusOpener from "../../dropdowns/opener/SmallStatusOpener";
 import StatusDropdownContent from "../../dropdowns/content/StatusDropdownContent";
 import SmallPriorityOpener from "../../dropdowns/opener/SmallPriorityOpener";
@@ -11,6 +12,8 @@ import SmallProjectOpener from "../../dropdowns/opener/SmallProjectOpener";
 import ProjectDropdownContent from "../../dropdowns/content/ProjectDropdownContent";
 import SmallLabelsOpener from "../../dropdowns/opener/SmallLabelsOpener";
 import LabelsDropdownContent from "../../dropdowns/content/LabelsDropdownContent";
+import SmallTargetDateOpener from "../../dropdowns/opener/SmallTargetDateOpener";
+import TargetDatePickerContent from "../../dropdowns/content/TargetDatePickerContent";
 import { mockAssignees } from "../../utils/assigneeData";
 import { mockProjects } from "../../utils/projectData";
 import { mockLabels, type Label } from "../../utils/labelData";
@@ -72,7 +75,7 @@ const DropdownSection = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
     padding-top: 0.75rem;
     padding-left: 0.5rem;
     border-top: 1px solid var(--section-background);
@@ -88,11 +91,12 @@ interface IssueFormData {
     assignees: string[];
     projectId: string | null;
     labels: string[];
+    targetDate: Date | null;
 }
 
 interface CreateIssueModalBodyProps {
     formData: IssueFormData;
-    onChange: (field: keyof IssueFormData, value: string | string[] | null) => void;
+    onChange: (field: keyof IssueFormData, value: string | string[] | Date | null) => void;
 }
 
 function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalBodyProps>) {
@@ -182,6 +186,17 @@ function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalB
                         />
                     </Dropdown.Portal>
                 </Dropdown.Root>
+                <Popover.Root>
+                    <Popover.Trigger asChild>
+                        <SmallTargetDateOpener selectedDate={formData.targetDate} />
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                        <TargetDatePickerContent
+                            selectedDate={formData.targetDate}
+                            onDateChange={(date) => onChange("targetDate", date)}
+                        />
+                    </Popover.Portal>
+                </Popover.Root>
             </DropdownSection>
         </BodyContainer>
     );

@@ -5,14 +5,13 @@ import SmallStatusOpener from "../../dropdowns/opener/SmallStatusOpener";
 import StatusDropdownContent from "../../dropdowns/content/StatusDropdownContent";
 import SmallPriorityOpener from "../../dropdowns/opener/SmallPriorityOpener";
 import PriorityDropdownContent from "../../dropdowns/content/PriorityDropdownContent";
-import SmallAssigneeOpener from "../../dropdowns/opener/SmallAssigneeOpener";
-import AssigneeDropdownContent from "../../dropdowns/content/AssigneeDropdownContent";
-import SmallProjectOpener from "../../dropdowns/opener/SmallProjectOpener";
-import ProjectDropdownContent from "../../dropdowns/content/ProjectDropdownContent";
+import SmallLeadOpener from "../../dropdowns/opener/SmallLeadOpener";
+import LeadDropdownContent from "../../dropdowns/content/LeadDropdownContent";
+import SmallMembersOpener from "../../dropdowns/opener/SmallMembersOpener";
+import MembersDropdownContent from "../../dropdowns/content/MembersDropdownContent";
 import SmallLabelsOpener from "../../dropdowns/opener/SmallLabelsOpener";
 import LabelsDropdownContent from "../../dropdowns/content/LabelsDropdownContent";
 import { mockAssignees } from "../../utils/assigneeData";
-import { mockProjects } from "../../utils/projectData";
 import { mockLabels, type Label } from "../../utils/labelData";
 import type { StatusLevel, PriorityLevel } from "../../utils/issueIconMaps";
 
@@ -26,7 +25,7 @@ const BodyContainer = styled.div`
     background-color: var(--white);
 `;
 
-const HeadingInput = styled.input`
+const NameInput = styled.input`
     width: 100%;
     border: none;
     background: transparent;
@@ -50,7 +49,7 @@ const Divider = styled.div`
     margin: 0.5rem 0;
 `;
 
-const BodyTextarea = styled.textarea`
+const DescriptionTextarea = styled.textarea`
     flex: 1;
     width: 100%;
     border: none;
@@ -80,37 +79,37 @@ const DropdownSection = styled.div`
 `;
 
 
-interface IssueFormData {
-    heading: string;
-    body: string;
+interface ProjectFormData {
+    name: string;
+    description: string;
     status: StatusLevel;
     priority: PriorityLevel;
-    assignees: string[];
-    projectId: string | null;
+    leadId: string | null;
+    memberIds: string[];
     labels: string[];
 }
 
-interface CreateIssueModalBodyProps {
-    formData: IssueFormData;
-    onChange: (field: keyof IssueFormData, value: string | string[] | null) => void;
+interface CreateProjectModalBodyProps {
+    formData: ProjectFormData;
+    onChange: (field: keyof ProjectFormData, value: string | string[] | null) => void;
 }
 
-function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalBodyProps>) {
+function CreateProjectModalBody({ formData, onChange }: Readonly<CreateProjectModalBodyProps>) {
     const [labels, setLabels] = useState<Label[]>(mockLabels);
 
     return (
         <BodyContainer>
-            <HeadingInput
+            <NameInput
                 type="text"
-                placeholder="Issue Title"
-                value={formData.heading}
-                onChange={(e) => onChange("heading", e.target.value)}
+                placeholder="Project Name"
+                value={formData.name}
+                onChange={(e) => onChange("name", e.target.value)}
             />
             <Divider />
-            <BodyTextarea
+            <DescriptionTextarea
                 placeholder="Description"
-                value={formData.body}
-                onChange={(e) => onChange("body", e.target.value)}
+                value={formData.description}
+                onChange={(e) => onChange("description", e.target.value)}
             />
             <DropdownSection>
                 <Dropdown.Root>
@@ -137,31 +136,31 @@ function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalB
                 </Dropdown.Root>
                 <Dropdown.Root>
                     <Dropdown.Trigger asChild>
-                        <SmallAssigneeOpener
-                            selectedAssignees={mockAssignees.filter((a) =>
-                                formData.assignees.includes(a.id)
-                            )}
+                        <SmallLeadOpener
+                            selectedLead={mockAssignees.find((a) => a.id === formData.leadId) || null}
                         />
                     </Dropdown.Trigger>
                     <Dropdown.Portal>
-                        <AssigneeDropdownContent
-                            assignees={mockAssignees}
-                            selectedAssignees={formData.assignees}
-                            onAssigneeChange={(ids) => onChange("assignees", ids)}
+                        <LeadDropdownContent
+                            users={mockAssignees}
+                            selectedLeadId={formData.leadId}
+                            onLeadChange={(id) => onChange("leadId", id)}
                         />
                     </Dropdown.Portal>
                 </Dropdown.Root>
                 <Dropdown.Root>
                     <Dropdown.Trigger asChild>
-                        <SmallProjectOpener
-                            selectedProject={mockProjects.find((p) => p.id === formData.projectId) || null}
+                        <SmallMembersOpener
+                            selectedMembers={mockAssignees.filter((a) =>
+                                formData.memberIds.includes(a.id)
+                            )}
                         />
                     </Dropdown.Trigger>
                     <Dropdown.Portal>
-                        <ProjectDropdownContent
-                            projects={mockProjects}
-                            selectedProjectId={formData.projectId}
-                            onProjectChange={(id) => onChange("projectId", id)}
+                        <MembersDropdownContent
+                            users={mockAssignees}
+                            selectedMemberIds={formData.memberIds}
+                            onMembersChange={(ids) => onChange("memberIds", ids)}
                         />
                     </Dropdown.Portal>
                 </Dropdown.Root>
@@ -187,4 +186,4 @@ function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalB
     );
 }
 
-export default CreateIssueModalBody;
+export default CreateProjectModalBody;

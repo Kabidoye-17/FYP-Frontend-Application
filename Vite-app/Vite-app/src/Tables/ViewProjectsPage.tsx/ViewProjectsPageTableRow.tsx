@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import * as Table from "../../design_system/Table";
 import Avatar from "../../design_system/Avatar";
 import Icon from "../../design_system/Icon";
@@ -13,11 +14,16 @@ interface ViewProjectPageTableRowProps {
 function ViewProjectsPageTableRow({
   project,
 }: Readonly<ViewProjectPageTableRowProps>) {
+  const navigate = useNavigate();
   const priorityIcon = getPriorityIcon(project.priority);
   const statusIcon = getStatusIcon(project.status);
 
+  const handleRowClick = () => {
+    navigate(`/home/projects/${project.id}`);
+  };
+
   return (
-    <Table.Row>
+    <Table.Row onClick={handleRowClick} style={{ cursor: "pointer" }}>
       <ViewProjectsPageTableCell type="icon">
         {priorityIcon && (
           <Tooltip.Root>

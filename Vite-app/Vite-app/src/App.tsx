@@ -10,6 +10,7 @@ import ViewIssuesPageTable from "./Tables/ViewIssuesPage/ViewIssuesPageTable";
 import ViewProjectsPageTable from "./Tables/ViewProjectsPage.tsx/ViewProjectsPageTable";
 import SettingsPage from "./pages/SettingsPage";
 import IssueDetailPage from "./pages/IssueDetailPage/IssueDetailPage";
+import ProjectDetailPage from "./pages/ProjectDetailPage/ProjectDetailPage";
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
               <Route path="projects" element={<ViewProjectsPageTable />} />
             </Route>
             <Route path="/home/issues/:issueId" element={<IssueDetailPage />} />
+            <Route path="/home/projects/:projectId" element={<ProjectDetailPage />} />
           </Routes>
         </Tooltip.Provider>
       </>

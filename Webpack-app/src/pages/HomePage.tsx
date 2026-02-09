@@ -7,6 +7,7 @@ import { PageContainer as PageContentWrapper, TableScrollContainer } from "./Vie
 import Button from "../design_system/Button";
 import Icon from "../design_system/Icon";
 import CreateIssueModal from "../modals/issue/CreateIssueModal";
+import CreateProjectModal from "../modals/project/CreateProjectModal";
 
 const PageContainer = styled.div`
     display: flex;
@@ -40,7 +41,7 @@ function HomePage() {
                 backgroundColor='white'
                 color='var(--plum)'
                 rightIcon={<Icon name="Plus" size={20} color="var(--plum)" weight='bold' />}
-                onClick={() => isIssuesPage && setIsCreateModalOpen(true)}
+                onClick={() => setIsCreateModalOpen(true)}
               >
                 {isIssuesPage ? 'Create Issue' : 'Create Project'}
               </Button>
@@ -52,8 +53,13 @@ function HomePage() {
             <Outlet />
           </TableScrollContainer>
         </PageContentWrapper>
-        {isIssuesPage && (
+        {isIssuesPage ? (
           <CreateIssueModal
+            open={isCreateModalOpen}
+            onOpenChange={setIsCreateModalOpen}
+          />
+        ) : (
+          <CreateProjectModal
             open={isCreateModalOpen}
             onOpenChange={setIsCreateModalOpen}
           />

@@ -31,26 +31,26 @@ const OpenerButton = styled.button`
     }
 `;
 
-const AssigneeText = styled.span`
+const MembersText = styled.span`
     color: var(--text-secondary);
 `;
 
-interface SmallAssigneeOpenerProps {
-    selectedAssignees: User[];
+interface SmallMembersOpenerProps {
+    selectedMembers: User[];
 }
 
-const SmallAssigneeOpener = forwardRef<HTMLButtonElement, SmallAssigneeOpenerProps>(
-    ({ selectedAssignees, ...props }, ref) => {
-        const hasAssignees = selectedAssignees.length > 0;
+const SmallMembersOpener = forwardRef<HTMLButtonElement, SmallMembersOpenerProps>(
+    ({ selectedMembers, ...props }, ref) => {
+        const hasMembers = selectedMembers.length > 0;
 
         return (
             <OpenerButton ref={ref} {...props}>
-                {hasAssignees ? (
-                    <AvatarGroup users={selectedAssignees} size="xsmall" maxVisible={3} />
+                {hasMembers ? (
+                    <AvatarGroup users={selectedMembers} size="xsmall" maxVisible={3} />
                 ) : (
                     <>
-                        <Avatar size="xsmall" color="var(--section-background)" name="A" />
-                        <AssigneeText>Assignee</AssigneeText>
+                        <Avatar size="xsmall" color="var(--section-background)" name="M" />
+                        <MembersText>Members</MembersText>
                     </>
                 )}
             </OpenerButton>
@@ -58,6 +58,6 @@ const SmallAssigneeOpener = forwardRef<HTMLButtonElement, SmallAssigneeOpenerPro
     }
 );
 
-SmallAssigneeOpener.displayName = "SmallAssigneeOpener";
+SmallMembersOpener.displayName = "SmallMembersOpener";
 
-export default SmallAssigneeOpener;
+export default SmallMembersOpener;

@@ -1,6 +1,7 @@
 import styled from "styled-components";
+import Avatar from "../../design_system/Avatar";
 import { forwardRef } from "react";
-import type { Project } from "../../utils/projectData";
+import type { User } from "../../utils/assigneeData";
 
 const OpenerButton = styled.button`
     all: unset;
@@ -30,26 +31,34 @@ const OpenerButton = styled.button`
     }
 `;
 
-const ProjectText = styled.span<{ $empty?: boolean }>`
+const LeadText = styled.span<{ $empty?: boolean }>`
     color: ${(props) => (props.$empty ? "var(--text-secondary)" : "var(--text-primary)")};
 `;
 
-interface SmallProjectOpenerProps {
-    selectedProject: Project | null;
+interface SmallLeadOpenerProps {
+    selectedLead: User | null;
 }
 
-const SmallProjectOpener = forwardRef<HTMLButtonElement, SmallProjectOpenerProps>(
-    ({ selectedProject, ...props }, ref) => {
+const SmallLeadOpener = forwardRef<HTMLButtonElement, SmallLeadOpenerProps>(
+    ({ selectedLead, ...props }, ref) => {
         return (
             <OpenerButton ref={ref} {...props}>
-                <ProjectText $empty={!selectedProject}>
-                    {selectedProject ? selectedProject.name : "Project"}
-                </ProjectText>
+                {selectedLead ? (
+                    <>
+                        <Avatar size="xsmall" color={selectedLead.color} name={selectedLead.name} />
+                        <LeadText>{selectedLead.name}</LeadText>
+                    </>
+                ) : (
+                    <>
+                        <Avatar size="xsmall" color="var(--section-background)" name="L" />
+                        <LeadText $empty>Lead</LeadText>
+                    </>
+                )}
             </OpenerButton>
         );
     }
 );
 
-SmallProjectOpener.displayName = "SmallProjectOpener";
+SmallLeadOpener.displayName = "SmallLeadOpener";
 
-export default SmallProjectOpener;
+export default SmallLeadOpener;

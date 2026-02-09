@@ -61,7 +61,7 @@ const Badge = styled.div<{ $size: AvatarSize }>`
     border: 2px solid var(--white);
     box-sizing: content-box;
     margin-left: -8px;
-    z-index: ${97};
+    z-index: 97;
 `;
 
 const TooltipContent = styled.div`

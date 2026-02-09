@@ -9,6 +9,8 @@ import * as Tooltip from "./design_system/Tooltip";
 import ViewIssuesPageTable from "./Tables/ViewIssuesPage/ViewIssuesPageTable";
 import ViewProjectsPageTable from "./Tables/ViewProjectsPage.tsx/ViewProjectsPageTable";
 import SettingsPage from "./pages/SettingsPage";
+import IssueDetailPage from "./pages/IssueDetailPage/IssueDetailPage";
+import ProjectDetailPage from "./pages/ProjectDetailPage/ProjectDetailPage";
 
 
 function App() {
@@ -32,6 +34,8 @@ function App() {
               <Route path="issues" element={<ViewIssuesPageTable />} />
               <Route path="projects" element={<ViewProjectsPageTable />} />
             </Route>
+            <Route path="/home/issues/:issueId" element={<IssueDetailPage />} />
+            <Route path="/home/projects/:projectId" element={<ProjectDetailPage />} />
           </Routes>
         </Tooltip.Provider>
       </>

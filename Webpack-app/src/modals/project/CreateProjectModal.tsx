@@ -1,24 +1,24 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import styled from "styled-components";
 import { useState } from "react";
-import CreateIssueModalHeader from "./CreateIssueModalHeader";
-import CreateIssueModalBody from "./CreateIssueModalBody";
-import CreateIssueModalFooter from "./CreateIssueModalFooter";
+import CreateProjectModalHeader from "./CreateProjectModalHeader";
+import CreateProjectModalBody from "./CreateProjectModalBody";
+import CreateProjectModalFooter from "./CreateProjectModalFooter";
 import { showToast } from "../../utils/toast";
 import type { StatusLevel, PriorityLevel } from "../../utils/issueIconMaps";
 
-interface CreateIssueModalProps {
+interface CreateProjectModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-interface IssueFormData {
-    heading: string;
-    body: string;
+interface ProjectFormData {
+    name: string;
+    description: string;
     status: StatusLevel;
     priority: PriorityLevel;
-    assignees: string[];
-    projectId: string | null;
+    leadId: string | null;
+    memberIds: string[];
     labels: string[];
     targetDate: Date | null;
 }
@@ -70,20 +70,20 @@ const DialogContent = styled(Dialog.Content)`
     }
 `;
 
-function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps>) {
-    const [formData, setFormData] = useState<IssueFormData>({
-        heading: "",
-        body: "",
+function CreateProjectModal({ open, onOpenChange }: Readonly<CreateProjectModalProps>) {
+    const [formData, setFormData] = useState<ProjectFormData>({
+        name: "",
+        description: "",
         status: "backlog",
         priority: "medium",
-        assignees: [],
-        projectId: null,
+        leadId: null,
+        memberIds: [],
         labels: [],
         targetDate: null,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFieldChange = (field: keyof IssueFormData, value: string | string[] | Date | null) => {
+    const handleFieldChange = (field: keyof ProjectFormData, value: string | string[] | Date | null) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -91,17 +91,17 @@ function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps
         setIsSubmitting(true);
 
         try {
-            // TODO: API call to create issue
-            console.log("Creating issue:", formData);
+            // TODO: API call to create project
+            console.log("Creating project:", formData);
 
             // Simulate API call
             await new Promise((resolve) => setTimeout(resolve, 500));
 
-            showToast.success("Issue created successfully!");
+            showToast.success("Project created successfully!");
             handleClose();
         } catch (error) {
-            showToast.error("Failed to create issue. Please try again.");
-            console.error("Error creating issue:", error);
+            showToast.error("Failed to create project. Please try again.");
+            console.error("Error creating project:", error);
         } finally {
             setIsSubmitting(false);
         }
@@ -109,34 +109,34 @@ function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps
 
     const handleClose = () => {
         setFormData({
-            heading: "",
-            body: "",
+            name: "",
+            description: "",
             status: "backlog",
             priority: "medium",
-            assignees: [],
-            projectId: null,
+            leadId: null,
+            memberIds: [],
             labels: [],
             targetDate: null,
         });
         onOpenChange(false);
     };
 
-    const hasHeading = formData.heading.trim().length > 0;
-    const hasBody = formData.body.trim().length > 0;
+    const hasName = formData.name.trim().length > 0;
+    const hasDescription = formData.description.trim().length > 0;
 
     return (
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Portal>
                 <DialogOverlay />
                 <DialogContent>
-                    <CreateIssueModalHeader onClose={handleClose} />
-                    <CreateIssueModalBody formData={formData} onChange={handleFieldChange} />
-                    <CreateIssueModalFooter
+                    <CreateProjectModalHeader onClose={handleClose} />
+                    <CreateProjectModalBody formData={formData} onChange={handleFieldChange} />
+                    <CreateProjectModalFooter
                         onCancel={handleClose}
                         onSubmit={handleSubmit}
                         isSubmitting={isSubmitting}
-                        hasHeading={hasHeading}
-                        hasBody={hasBody}
+                        hasName={hasName}
+                        hasDescription={hasDescription}
                     />
                 </DialogContent>
             </Dialog.Portal>
@@ -144,4 +144,4 @@ function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps
     );
 }
 
-export default CreateIssueModal;
+export default CreateProjectModal;

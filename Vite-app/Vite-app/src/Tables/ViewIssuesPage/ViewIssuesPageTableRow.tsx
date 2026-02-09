@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import * as Table from "../../design_system/Table";
 import Avatar from "../../design_system/Avatar";
 import Icon from "../../design_system/Icon";
@@ -6,6 +8,10 @@ import type { Issue } from "../types/contentTypes";
 import { getPriorityIcon, getStatusIcon } from "../../utils/issueIconMaps";
 import * as Tooltip from "../../design_system/Tooltip";
 
+const ClickableRow = styled(Table.Row)`
+  cursor: pointer;
+`;
+
 interface ViewIssuesPageTableRowProps {
   issue: Issue;
 }
@@ -13,11 +19,16 @@ interface ViewIssuesPageTableRowProps {
 function ViewIssuesPageTableRow({
   issue,
 }: Readonly<ViewIssuesPageTableRowProps>) {
+  const navigate = useNavigate();
   const priorityIcon = getPriorityIcon(issue.priority);
   const statusIcon = getStatusIcon(issue.status);
 
+  const handleRowClick = () => {
+    navigate(`/home/issues/${issue.id}`);
+  };
+
   return (
-    <Table.Row>
+    <ClickableRow onClick={handleRowClick}>
       <ViewIssuesPageTableCell type="icon">
         {priorityIcon && (
           <Tooltip.Root>
@@ -79,7 +90,7 @@ function ViewIssuesPageTableRow({
       <ViewIssuesPageTableCell >
         {issue.createdDate}
       </ViewIssuesPageTableCell>
-    </Table.Row>
+    </ClickableRow>
   );
 }
 

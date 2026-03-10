@@ -1,10 +1,10 @@
 import styled from 'styled-components'
-import { useState, useEffect } from 'react';
 import Icon from '../design_system/Icon';
 import * as Switch from '../design_system/Switch';
 import * as Popover from '../design_system/Popover';
 import SelectionButton from '../design_system/SelectionButton';
 import * as PanelItem from "./SettingsPanelItem";
+import { useLocalStorage } from '../hooks';
 
 const PanelContainer = styled.div`
     display: flex;
@@ -47,20 +47,14 @@ const IconContainer = styled.div`
 `;
 
 function SettingsPanel () {
-    const [defaultView, setDefaultView] = useState<string>('Issues');
+    // useLocalStorage automatically syncs state with localStorage
+    const [defaultView, setDefaultView] = useLocalStorage<string>('defaultHomeView', 'projects');
 
-    useEffect(() => {
-        const savedView = localStorage.getItem('defaultHomeView');
-        if (savedView === 'issues') {
-            setDefaultView('Issues');
-        } else if (savedView === 'projects') {
-            setDefaultView('Projects');
-        }
-    }, []);
+    // Convert stored value to display value
+    const displayView = defaultView === 'issues' ? 'Issues' : 'Projects';
 
     const handleViewChange = (view: string) => {
-        setDefaultView(view);
-        localStorage.setItem('defaultHomeView', view.toLowerCase());
+        setDefaultView(view.toLowerCase());
     };
 
     return (
@@ -86,7 +80,7 @@ function SettingsPanel () {
                 <PanelItem.ItemRightBottomContainer>
                     <Popover.Root>
                         <Popover.Trigger asChild>
-                            <SelectionButton value={defaultView} backgroundColor="var(--white)" />
+                            <SelectionButton value={displayView} backgroundColor="var(--white)" />
                         </Popover.Trigger>
                         <Popover.Portal>
                             <Popover.Content $backgroundColor="var(--white)">

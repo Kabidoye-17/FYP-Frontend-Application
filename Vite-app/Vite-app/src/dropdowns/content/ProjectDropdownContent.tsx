@@ -4,6 +4,7 @@ import SearchBar from "../../design_system/SearchBar";
 import styled from "styled-components";
 import { useState } from "react";
 import type { Project } from "../../utils/projectData";
+import { useDebounce } from "../../hooks";
 
 const ModalDropdownContent = styled(Dropdown.Content)`
     z-index: 250;
@@ -65,9 +66,10 @@ function ProjectDropdownContent({
     onProjectChange,
 }: Readonly<ProjectDropdownContentProps>) {
     const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearch = useDebounce(searchTerm, 150);
 
     const filteredProjects = projects.filter((project) =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase())
+        project.name.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
 
     return (

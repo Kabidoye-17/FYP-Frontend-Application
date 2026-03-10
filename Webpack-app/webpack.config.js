@@ -1,6 +1,7 @@
 // Webpack Configuration File
 
 const path = require("path");
+const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
@@ -41,6 +42,27 @@ module.exports = {
 
   // Plugins extend webpack's functionality
   plugins: [
+    // Define environment variables for browser code
+    // This replaces process.env.* with actual values at build time
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
+      "process.env.REACT_APP_API_URL": JSON.stringify(process.env.REACT_APP_API_URL || ""),
+      "process.env.REACT_APP_VERSION": JSON.stringify(package.version),
+      "process.env.REACT_APP_FEATURE_ANALYTICS": JSON.stringify(process.env.REACT_APP_FEATURE_ANALYTICS || "true"),
+      "process.env.REACT_APP_FEATURE_CALENDAR": JSON.stringify(process.env.REACT_APP_FEATURE_CALENDAR || "true"),
+      "process.env.REACT_APP_FEATURE_TEAM": JSON.stringify(process.env.REACT_APP_FEATURE_TEAM || "true"),
+      "process.env.REACT_APP_FEATURE_ROADMAP": JSON.stringify(process.env.REACT_APP_FEATURE_ROADMAP || "true"),
+      "process.env.REACT_APP_FEATURE_WORKLOAD": JSON.stringify(process.env.REACT_APP_FEATURE_WORKLOAD || "true"),
+      "process.env.REACT_APP_FEATURE_RICH_TEXT": JSON.stringify(process.env.REACT_APP_FEATURE_RICH_TEXT || "true"),
+      "process.env.REACT_APP_FEATURE_KEYBOARD_SHORTCUTS": JSON.stringify(process.env.REACT_APP_FEATURE_KEYBOARD_SHORTCUTS || "true"),
+      "process.env.REACT_APP_FEATURE_COMMAND_PALETTE": JSON.stringify(process.env.REACT_APP_FEATURE_COMMAND_PALETTE || "true"),
+      "process.env.REACT_APP_FEATURE_BULK_OPS": JSON.stringify(process.env.REACT_APP_FEATURE_BULK_OPS || "true"),
+      "process.env.REACT_APP_FEATURE_IMPORT_EXPORT": JSON.stringify(process.env.REACT_APP_FEATURE_IMPORT_EXPORT || "true"),
+      "process.env.REACT_APP_FEATURE_NOTIFICATIONS": JSON.stringify(process.env.REACT_APP_FEATURE_NOTIFICATIONS || "true"),
+      "process.env.REACT_APP_FEATURE_TIME_TRACKING": JSON.stringify(process.env.REACT_APP_FEATURE_TIME_TRACKING || "true"),
+      "process.env.REACT_APP_FEATURE_DEPENDENCIES": JSON.stringify(process.env.REACT_APP_FEATURE_DEPENDENCIES || "true"),
+      "process.env.REACT_APP_MOCK_API": JSON.stringify(process.env.REACT_APP_MOCK_API || "false"),
+    }),
     // Automatically generates an HTML file that includes your bundled JavaScript
     // Takes public/index.html as template and injects <script> tags
     new HtmlWebpackPlugin({

@@ -1,45 +1,103 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
-import SignUpPage from "./pages/SignUpPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import GlobalStyles from "./utils/GlobalStyles";
-import LoginPage from "./pages/LoginPage";
-import LoginAndRegisterPage from "./pages/LoginAndRegisterPage";
-import HomePage from "./pages/HomePage";
 import * as Tooltip from "./design_system/Tooltip";
-import ViewIssuesPageTable from "./Tables/ViewIssuesPage/ViewIssuesPageTable";
-import ViewProjectsPageTable from "./Tables/ViewProjectsPage.tsx/ViewProjectsPageTable";
-import SettingsPage from "./pages/SettingsPage";
-import IssueDetailPage from "./pages/IssueDetailPage/IssueDetailPage";
-import ProjectDetailPage from "./pages/ProjectDetailPage/ProjectDetailPage";
+import { AppProvider } from "./contexts/AppContext";
+import AppErrorBoundary from "./components/ErrorBoundary/AppErrorBoundary";
+import KeyboardShortcutsProvider from "./features/keyboard/KeyboardShortcutsProvider";
+import PageSuspense from "./components/Suspense/PageSuspense";
+import { ROUTE_PATTERNS } from "./config";
+import { useLocalStorage } from "./hooks";
 
+// Lazy load all page components for code splitting
+// This dramatically reduces initial bundle size
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const SignUpPage = lazy(() => import("./pages/SignUpPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const LoginAndRegisterPage = lazy(() => import("./pages/LoginAndRegisterPage"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+
+// Home sub-pages
+const ViewIssuesPageTable = lazy(() => import("./Tables/ViewIssuesPage/ViewIssuesPageTable"));
+const ViewProjectsPageTable = lazy(() => import("./Tables/ViewProjectsPage.tsx/ViewProjectsPageTable"));
+const ViewSprintsPageTable = lazy(() => import("./Tables/ViewSprintsPage/ViewSprintsPageTable"));
+const ViewMilestonesPage = lazy(() => import("./pages/ViewMilestonesPage"));
+const KanbanBoardPage = lazy(() => import("./pages/KanbanBoardPage"));
+const RoadmapPage = lazy(() => import("./pages/RoadmapPage"));
+const WorkloadPage = lazy(() => import("./pages/WorkloadPage"));
+const AnalyticsDashboardPage = lazy(() => import("./pages/AnalyticsDashboardPage/AnalyticsDashboardPage"));
+const CalendarPage = lazy(() => import("./pages/CalendarPage/CalendarPage"));
+const TeamPage = lazy(() => import("./pages/TeamPage/TeamPage"));
+
+// Detail pages
+const IssueDetailPage = lazy(() => import("./pages/IssueDetailPage/IssueDetailPage"));
+const ProjectDetailPage = lazy(() => import("./pages/ProjectDetailPage/ProjectDetailPage"));
+const SprintDetailPage = lazy(() => import("./pages/SprintDetailPage/SprintDetailPage"));
+
+// Create a client for TanStack Query
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            retry: 1,
+            refetchOnWindowFocus: false,
+        },
+    },
+});
 
 function App() {
-  const getDefaultView = (): string => {
-    const defaultView = localStorage.getItem('defaultHomeView');
-    return defaultView === 'issues' ? 'issues' : 'projects';
-  };
+    // Use custom hook for localStorage with automatic sync
+    const [defaultView] = useLocalStorage<string>("defaultHomeView", "projects");
 
-  return (
-      <>
-        <GlobalStyles />
-        <Tooltip.Provider delayDuration={200}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/loginandregister" element={<LoginAndRegisterPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/home" element={<HomePage />}>
-              <Route index element={<Navigate to={getDefaultView()} replace />} />
-              <Route path="issues" element={<ViewIssuesPageTable />} />
-              <Route path="projects" element={<ViewProjectsPageTable />} />
-            </Route>
-            <Route path="/home/issues/:issueId" element={<IssueDetailPage />} />
-            <Route path="/home/projects/:projectId" element={<ProjectDetailPage />} />
-          </Routes>
-        </Tooltip.Provider>
-      </>
-  );
+    const getDefaultView = (): string => {
+        return defaultView === "issues" ? "issues" : "projects";
+    };
+
+    return (
+        <AppErrorBoundary>
+            <QueryClientProvider client={queryClient}>
+                <AppProvider>
+                    <KeyboardShortcutsProvider>
+                        <GlobalStyles />
+                        <Tooltip.Provider delayDuration={200}>
+                            <Suspense fallback={<PageSuspense />}>
+                                <Routes>
+                                    {/* Public routes */}
+                                    <Route path="/" element={<LandingPage />} />
+                                    <Route path="/signup" element={<SignUpPage />} />
+                                    <Route path="/login" element={<LoginPage />} />
+                                    <Route path="/loginandregister" element={<LoginAndRegisterPage />} />
+                                    <Route path="/settings" element={<SettingsPage />} />
+
+                                    {/* Main app with nested routes */}
+                                    <Route path="/home" element={<HomePage />}>
+                                        <Route index element={<Navigate to={getDefaultView()} replace />} />
+                                        <Route path="issues" element={<ViewIssuesPageTable />} />
+                                        <Route path="projects" element={<ViewProjectsPageTable />} />
+                                        <Route path="sprints" element={<ViewSprintsPageTable />} />
+                                        <Route path="milestones" element={<ViewMilestonesPage />} />
+                                        <Route path="kanban" element={<KanbanBoardPage />} />
+                                        <Route path="roadmap" element={<RoadmapPage />} />
+                                        <Route path="workload" element={<WorkloadPage />} />
+                                        <Route path="analytics" element={<AnalyticsDashboardPage />} />
+                                        <Route path="calendar" element={<CalendarPage />} />
+                                        <Route path="team" element={<TeamPage />} />
+                                    </Route>
+
+                                    {/* Detail pages */}
+                                    <Route path={ROUTE_PATTERNS.ISSUE_DETAIL} element={<IssueDetailPage />} />
+                                    <Route path={ROUTE_PATTERNS.PROJECT_DETAIL} element={<ProjectDetailPage />} />
+                                    <Route path={ROUTE_PATTERNS.SPRINT_DETAIL} element={<SprintDetailPage />} />
+                                </Routes>
+                            </Suspense>
+                        </Tooltip.Provider>
+                    </KeyboardShortcutsProvider>
+                </AppProvider>
+            </QueryClientProvider>
+        </AppErrorBoundary>
+    );
 }
 
 export default App;

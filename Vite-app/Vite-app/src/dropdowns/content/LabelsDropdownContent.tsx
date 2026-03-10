@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { Label } from "../../utils/labelData";
 import CreateLabelModal from "../../modals/label/CreateLabelModal";
 import { showToast } from "../../utils/toast";
+import { useDebounce, useToggle } from "../../hooks";
 
 const ModalDropdownContent = styled(Dropdown.Content)`
     z-index: 250;
@@ -135,10 +136,11 @@ function LabelsDropdownContent({
     onLabelsUpdate,
 }: Readonly<LabelsDropdownContentProps>) {
     const [searchTerm, setSearchTerm] = useState("");
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const debouncedSearch = useDebounce(searchTerm, 150);
+    const [isCreateModalOpen, , openCreateModal, closeCreateModal] = useToggle(false);
 
     const filteredLabels = labels.filter((label) =>
-        label.name.toLowerCase().includes(searchTerm.toLowerCase())
+        label.name.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
 
     const handleToggleLabel = (labelId: string) => {
@@ -166,7 +168,7 @@ function LabelsDropdownContent({
     const handleOpenCreateModal = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setIsCreateModalOpen(true);
+        openCreateModal();
     };
 
     return (
@@ -248,7 +250,7 @@ function LabelsDropdownContent({
             </ModalDropdownContent>
             <CreateLabelModal
                 open={isCreateModalOpen}
-                onOpenChange={setIsCreateModalOpen}
+                onOpenChange={(open) => open ? openCreateModal() : closeCreateModal()}
                 onLabelCreate={handleCreateLabel}
                 fromDropdown
             />

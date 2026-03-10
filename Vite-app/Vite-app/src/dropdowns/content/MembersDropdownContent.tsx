@@ -5,6 +5,7 @@ import SearchBar from "../../design_system/SearchBar";
 import styled from "styled-components";
 import { useState } from "react";
 import type { User } from "../../utils/assigneeData";
+import { useDebounce } from "../../hooks";
 
 const ModalDropdownContent = styled(Dropdown.Content)`
     z-index: 250;
@@ -73,9 +74,10 @@ function MembersDropdownContent({
     onMembersChange,
 }: Readonly<MembersDropdownContentProps>) {
     const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearch = useDebounce(searchTerm, 150);
 
     const filteredUsers = users.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.name.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
 
     const handleToggleMember = (userId: string) => {

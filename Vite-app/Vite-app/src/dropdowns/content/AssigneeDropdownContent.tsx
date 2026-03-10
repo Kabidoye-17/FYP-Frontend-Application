@@ -5,6 +5,7 @@ import SearchBar from "../../design_system/SearchBar";
 import styled from "styled-components";
 import { useState } from "react";
 import type { User } from "../../utils/assigneeData";
+import { useDebounce } from "../../hooks";
 
 const ModalDropdownContent = styled(Dropdown.Content)`
     z-index: 250;
@@ -73,9 +74,11 @@ function AssigneeDropdownContent({
     onAssigneeChange,
 }: Readonly<AssigneeDropdownContentProps>) {
     const [searchTerm, setSearchTerm] = useState("");
+    // Debounce search to avoid filtering on every keystroke
+    const debouncedSearch = useDebounce(searchTerm, 150);
 
     const filteredAssignees = assignees.filter((assignee) =>
-        assignee.name.toLowerCase().includes(searchTerm.toLowerCase())
+        assignee.name.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
 
     const handleToggleAssignee = (assigneeId: string) => {

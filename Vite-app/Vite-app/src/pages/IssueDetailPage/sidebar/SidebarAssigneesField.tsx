@@ -2,7 +2,7 @@ import styled from "styled-components";
 import * as Dropdown from "../../../design_system/Dropdown";
 import SmallAssigneeOpener from "../../../dropdowns/opener/SmallAssigneeOpener";
 import AssigneeDropdownContent from "../../../dropdowns/content/AssigneeDropdownContent";
-import { mockAssignees } from "../../../utils/assigneeData";
+import { useTeam } from "../../../hooks/queries";
 
 interface SidebarAssigneesFieldProps {
   assignees: string[];
@@ -25,7 +25,16 @@ const FieldLabel = styled.span`
 `;
 
 function SidebarAssigneesField({ assignees, onAssigneesChange }: SidebarAssigneesFieldProps) {
-  const selectedAssignees = mockAssignees.filter((a) => assignees.includes(a.id));
+  const { data: teamMembers = [] } = useTeam();
+
+  // Transform team members to assignee format
+  const availableAssignees = teamMembers.map(member => ({
+    id: member.id,
+    name: member.name,
+    color: member.color,
+  }));
+
+  const selectedAssignees = availableAssignees.filter((a) => assignees.includes(a.id));
 
   return (
     <FieldContainer>
@@ -36,7 +45,7 @@ function SidebarAssigneesField({ assignees, onAssigneesChange }: SidebarAssignee
         </Dropdown.Trigger>
         <Dropdown.Portal>
           <AssigneeDropdownContent
-            assignees={mockAssignees}
+            assignees={availableAssignees}
             selectedAssignees={assignees}
             onAssigneeChange={onAssigneesChange}
           />

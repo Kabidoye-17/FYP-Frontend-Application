@@ -1,122 +1,59 @@
-import { useState, useEffect } from "react";
 import styled from "styled-components";
 import ViewIssuesPageTableSection from "../ViewIssuesPage/ViewIssuesPageTableSection";
 import ViewIssuesPageTableSkeleton from "./ViewIssuesPageTableSkeleton";
-import type { IssueSection } from "../types/contentTypes";
+import EmptyState from "../../design_system/EmptyState";
+import Button from "../../design_system/Button";
+import { useIssues } from "../../hooks/queries";
+import { groupIssuesByStatus } from "../../utils/dataHelpers";
 
 export const TableContainer = styled.div`
   width: 100%;
   padding: 1rem;
 `;
 
-const mockSections: IssueSection[] = [
-  {
-    title: "Backlog",
-    issues: [
-      {
-        id: "1",
-        team: "Engineering",
-        status: "backlog",
-        priority: "high",
-        projectName: "Website Redesign",
-        assignee: { name: "John Doe", color: "var(--plum)" },
-        createdDate: "2026-01-10",
-      },
-      {
-        id: "2",
-        team: "Design",
-        status: "backlog",
-        priority: "medium",
-        projectName: "Mobile App",
-        assignee: { name: "Jane Smith", color: "var(--tan)" },
-        createdDate: "2026-01-09",
-      },
-      {
-        id: "3",
-        team: "Marketing",
-        status: "backlog",
-        priority: "low",
-        projectName: "Q1 Campaign",
-        assignee: { name: "Mike Johnson", color: "var(--light-plum)" },
-        createdDate: "2026-01-08",
-      },
-    ],
-  },
-  {
-    title: "In Progress",
-    issues: [
-      {
-        id: "4",
-        team: "Engineering",
-        priority: "high",
-        status: "in progress",
-        projectName: "API Development",
-        assignee: { name: "Bob Wilson", color: "var(--plum)" },
-        createdDate: "2026-01-07",
-      },
-      {
-        id: "5",
-        team: "Design",
-        priority: "medium",
-        status: "in progress",
-        projectName: "Design System",
-        assignee: { name: "Sarah Lee", color: "var(--tan)" },
-        createdDate: "2026-01-06",
-      },
-    ],
-  },
-  {
-    title: "Completed",
-    issues: [
-      {
-        id: "6",
-        team: "Marketing",
-        priority: "high",
-        status: "completed",
-        projectName: "Campaign Launch",
-        assignee: { name: "Alice Brown", color: "var(--plum)" },
-        createdDate: "2026-01-05",
-      },
-      {
-        id: "7",
-        team: "Engineering",
-        priority: "medium",
-        status: "completed",
-        projectName: "Bug Fixes",
-        assignee: { name: "Tom Davis", color: "var(--light-plum)" },
-        createdDate: "2026-01-04",
-      },
-      {
-        id: "8",
-        team: "Design",
-        priority: "low",
-        status: "completed",
-        projectName: "Logo Refresh",
-        assignee: { name: "Emma White", color: "var(--tan)" },
-        createdDate: "2026-01-03",
-      },
-    ],
-  },
-];
+const ErrorContainer = styled.div`
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+`;
 
 function ViewIssuesPageTable() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: issues, isLoading, isError, error, refetch } = useIssues();
 
   if (isLoading) {
     return <ViewIssuesPageTableSkeleton />;
   }
 
+  if (isError) {
+    return (
+      <ErrorContainer>
+        <EmptyState
+          icon="Warning"
+          title="Failed to load issues"
+          description={error?.message || "An error occurred while loading issues"}
+          action={<Button onClick={() => refetch()}>Retry</Button>}
+        />
+      </ErrorContainer>
+    );
+  }
+
+  if (!issues || issues.length === 0) {
+    return (
+      <ErrorContainer>
+        <EmptyState
+          icon="Circle"
+          title="No issues yet"
+          description="Create your first issue to start tracking work"
+        />
+      </ErrorContainer>
+    );
+  }
+
+  const sections = groupIssuesByStatus(issues);
+
   return (
     <TableContainer>
-      {mockSections.map((section) => (
+      {sections.map((section) => (
         <ViewIssuesPageTableSection
           key={section.title}
           title={section.title}

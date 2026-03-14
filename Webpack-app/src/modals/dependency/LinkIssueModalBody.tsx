@@ -3,6 +3,7 @@ import Icon from "../../design_system/Icon";
 import * as Dropdown from "../../design_system/Dropdown";
 import SmallDependencyTypeOpener from "../../dropdowns/opener/SmallDependencyTypeOpener";
 import DependencyTypeDropdownContent from "../../dropdowns/content/DependencyTypeDropdownContent";
+import { useIssues } from "../../hooks/queries";
 
 type DependencyType = "blocks" | "blocked-by" | "relates-to" | "duplicates";
 
@@ -112,14 +113,6 @@ const IssueId = styled.span`
     color: var(--text-tertiary);
 `;
 
-const MOCK_ISSUES: SearchableIssue[] = [
-    { id: "ISS-123", title: "Fix authentication flow", status: "in-progress" },
-    { id: "ISS-124", title: "Update user dashboard", status: "todo" },
-    { id: "ISS-125", title: "Implement notifications", status: "backlog" },
-    { id: "ISS-126", title: "Refactor API endpoints", status: "done" },
-    { id: "ISS-127", title: "Add export functionality", status: "in-review" },
-];
-
 function LinkIssueModalBody({
     linkType,
     onLinkTypeChange,
@@ -128,11 +121,20 @@ function LinkIssueModalBody({
     selectedIssueId,
     onIssueSelect,
 }: Readonly<LinkIssueModalBodyProps>) {
-    const filteredIssues = MOCK_ISSUES.filter(
-        (issue) =>
-            issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            issue.id.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const { data: issues = [] } = useIssues();
+
+    // Transform to searchable format and filter by search query
+    const filteredIssues: SearchableIssue[] = issues
+        .map(issue => ({
+            id: issue.id,
+            title: issue.title,
+            status: issue.status,
+        }))
+        .filter(
+            (issue) =>
+                issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                issue.id.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
     return (
         <Body>

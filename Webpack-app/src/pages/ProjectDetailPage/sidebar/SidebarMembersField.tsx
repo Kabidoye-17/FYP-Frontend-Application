@@ -2,7 +2,7 @@ import styled from "styled-components";
 import * as Dropdown from "../../../design_system/Dropdown";
 import SmallMembersOpener from "../../../dropdowns/opener/SmallMembersOpener";
 import MembersDropdownContent from "../../../dropdowns/content/MembersDropdownContent";
-import { mockAssignees } from "../../../utils/assigneeData";
+import { useTeam } from "../../../hooks/queries";
 
 interface SidebarMembersFieldProps {
   memberIds: string[];
@@ -25,7 +25,16 @@ const FieldLabel = styled.span`
 `;
 
 function SidebarMembersField({ memberIds, onMembersChange }: SidebarMembersFieldProps) {
-  const selectedMembers = mockAssignees.filter((a) => memberIds.includes(a.id));
+  const { data: teamMembers = [] } = useTeam();
+
+  // Transform team members to user format
+  const users = teamMembers.map(member => ({
+    id: member.id,
+    name: member.name,
+    color: member.color,
+  }));
+
+  const selectedMembers = users.filter((a) => memberIds.includes(a.id));
 
   return (
     <FieldContainer>
@@ -36,7 +45,7 @@ function SidebarMembersField({ memberIds, onMembersChange }: SidebarMembersField
         </Dropdown.Trigger>
         <Dropdown.Portal>
           <MembersDropdownContent
-            users={mockAssignees}
+            users={users}
             selectedMemberIds={memberIds}
             onMembersChange={onMembersChange}
           />

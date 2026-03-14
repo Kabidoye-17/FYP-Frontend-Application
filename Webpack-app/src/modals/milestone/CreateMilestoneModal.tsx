@@ -5,10 +5,12 @@ import CreateMilestoneModalHeader from "./CreateMilestoneModalHeader";
 import CreateMilestoneModalBody from "./CreateMilestoneModalBody";
 import CreateMilestoneModalFooter from "./CreateMilestoneModalFooter";
 import { showToast } from "../../utils/toast";
+import { useCreateMilestone } from "../../hooks/queries";
 
 interface CreateMilestoneModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    projectId?: string;
 }
 
 export interface MilestoneFormData {
@@ -64,33 +66,43 @@ const DialogContent = styled(Dialog.Content)`
     }
 `;
 
-function CreateMilestoneModal({ open, onOpenChange }: Readonly<CreateMilestoneModalProps>) {
+function CreateMilestoneModal({ open, onOpenChange, projectId }: Readonly<CreateMilestoneModalProps>) {
     const [formData, setFormData] = useState<MilestoneFormData>({
         title: "",
         description: "",
         dueDate: null,
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const createMilestone = useCreateMilestone();
 
     const handleFieldChange = (field: keyof MilestoneFormData, value: string | Date | null) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleSubmit = async () => {
-        setIsSubmitting(true);
-
-        try {
-            console.log("Creating milestone:", formData);
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            showToast.success("Milestone created successfully!");
-            handleClose();
-        } catch (error) {
-            showToast.error("Failed to create milestone. Please try again.");
-            console.error("Error creating milestone:", error);
-        } finally {
-            setIsSubmitting(false);
+    const handleSubmit = () => {
+        if (!projectId) {
+            showToast.error("Please select a project first.");
+            return;
         }
+
+        createMilestone.mutate(
+            {
+                title: formData.title,
+                description: formData.description,
+                dueDate: formData.dueDate?.toISOString() || null,
+                projectId,
+            },
+            {
+                onSuccess: () => {
+                    showToast.success("Milestone created successfully!");
+                    handleClose();
+                },
+                onError: (error) => {
+                    showToast.error("Failed to create milestone. Please try again.");
+                    console.error("Error creating milestone:", error);
+                },
+            }
+        );
     };
 
     const handleClose = () => {
@@ -114,7 +126,7 @@ function CreateMilestoneModal({ open, onOpenChange }: Readonly<CreateMilestoneMo
                     <CreateMilestoneModalFooter
                         onCancel={handleClose}
                         onSubmit={handleSubmit}
-                        isSubmitting={isSubmitting}
+                        isSubmitting={createMilestone.isPending}
                         isValid={isValid}
                     />
                 </DialogContent>

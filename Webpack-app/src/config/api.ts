@@ -3,8 +3,8 @@
  * Centralized API URL management
  */
 
-// Base URL from environment variables (Webpack uses process.env)
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000/api";
+// Base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 export const API = {
     BASE_URL: API_BASE_URL,
@@ -77,6 +77,15 @@ export const API = {
         LIST: `${API_BASE_URL}/labels`,
         CREATE: `${API_BASE_URL}/labels`,
         DELETE: (id: string) => `${API_BASE_URL}/labels/${id}`,
+    },
+
+    // Calendar endpoints
+    CALENDAR: {
+        LIST: `${API_BASE_URL}/calendar`,
+        DETAIL: (id: string) => `${API_BASE_URL}/calendar/${id}`,
+        CREATE: `${API_BASE_URL}/calendar`,
+        UPDATE: (id: string) => `${API_BASE_URL}/calendar/${id}`,
+        DELETE: (id: string) => `${API_BASE_URL}/calendar/${id}`,
     },
 } as const;
 

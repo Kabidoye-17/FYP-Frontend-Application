@@ -22,6 +22,7 @@ class User(Base):
     id = Column(String, primary_key=True)
     email = Column(String, unique=True, nullable=False, index=True)
     name = Column(String, nullable=False)
+    password_hash = Column(String, nullable=True)  # For demo: simple password storage
     color = Column(String, default="#727272")  # Avatar/badge color
     role = Column(Enum(UserRole), default=UserRole.MEMBER)
     created_at = Column(DateTime, default=datetime.utcnow)

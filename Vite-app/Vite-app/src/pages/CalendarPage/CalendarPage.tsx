@@ -3,7 +3,8 @@ import styled from "styled-components";
 import CalendarPageHeader from "./CalendarPageHeader";
 import Calendar from "../../features/calendar/Calendar";
 import QuickEventModal from "../../modals/event/QuickEventModal";
-import type { CalendarEvent } from "../../features/calendar/events/CalendarEventChip";
+import { useCalendarEvents, useCreateCalendarEvent } from "../../hooks/queries/useCalendar";
+import type { CalendarEventType } from "../../types/api.types";
 
 const PageContainer = styled.div`
     display: flex;
@@ -18,17 +19,30 @@ const Content = styled.div`
     overflow: hidden;
 `;
 
-const MOCK_EVENTS: CalendarEvent[] = [
-    { id: "1", title: "Sprint Planning", date: new Date(2026, 2, 10), type: "meeting" },
-    { id: "2", title: "Fix auth bug", date: new Date(2026, 2, 10), type: "issue" },
-    { id: "3", title: "Q1 Release", date: new Date(2026, 2, 15), type: "milestone" },
-    { id: "4", title: "Sprint 12", date: new Date(2026, 2, 12), type: "sprint" },
-    { id: "5", title: "Code review", date: new Date(2026, 2, 14), type: "issue" },
-    { id: "6", title: "Design handoff", date: new Date(2026, 2, 18), type: "meeting" },
-];
+const LoadingContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+`;
+
+const ErrorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--error);
+    font-family: 'Inter', sans-serif;
+    gap: 1rem;
+`;
 
 function CalendarPage() {
-    const [events, setEvents] = useState<CalendarEvent[]>(MOCK_EVENTS);
+    const { data: events = [], isLoading, isError, error } = useCalendarEvents();
+    const createEvent = useCreateCalendarEvent();
+
     const [quickEventModalOpen, setQuickEventModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
@@ -44,19 +58,48 @@ function CalendarPage() {
         date: Date;
         type: "issue" | "milestone" | "sprint" | "meeting";
     }) => {
-        const newEvent: CalendarEvent = {
-            id: String(Date.now()),
-            ...eventData,
-        };
-        setEvents((prev) => [...prev, newEvent]);
+        createEvent.mutate({
+            title: eventData.title,
+            date: eventData.date.toISOString(),
+            type: eventData.type as CalendarEventType,
+        });
     };
+
+    // Transform API events to Calendar component format
+    const calendarEvents = events.map(event => ({
+        id: event.id,
+        title: event.title,
+        date: new Date(event.date),
+        type: event.type as "issue" | "milestone" | "sprint" | "meeting",
+    }));
+
+    if (isLoading) {
+        return (
+            <PageContainer>
+                <CalendarPageHeader />
+                <LoadingContainer>Loading calendar events...</LoadingContainer>
+            </PageContainer>
+        );
+    }
+
+    if (isError) {
+        return (
+            <PageContainer>
+                <CalendarPageHeader />
+                <ErrorContainer>
+                    <span>Failed to load calendar events</span>
+                    <span style={{ fontSize: '0.875rem' }}>{error?.message}</span>
+                </ErrorContainer>
+            </PageContainer>
+        );
+    }
 
     return (
         <PageContainer>
             <CalendarPageHeader />
             <Content>
                 <Calendar
-                    events={events}
+                    events={calendarEvents}
                     onAddEvent={handleAddEvent}
                     onEventClick={(event) => console.log("Event clicked:", event)}
                 />

@@ -5,67 +5,41 @@ import TeamPageHeader from "./TeamPageHeader";
 import TeamMemberGrid from "../../features/team/TeamMemberGrid";
 import TeamMemberProfilePanel from "../../panels/TeamMemberProfilePanel";
 import InviteTeamMemberModal from "../../modals/team/InviteTeamMemberModal";
+import EmptyState from "../../design_system/EmptyState";
+import Button from "../../design_system/Button";
 import type { TeamMember } from "../../features/team/TeamMemberCard";
+import { useTeam } from "../../hooks/queries";
+import { transformUsersToTeamMembers } from "../../utils/dataHelpers";
 
 const Content = styled.div`
     padding: 1.5rem;
 `;
 
-const MOCK_MEMBERS: TeamMember[] = [
-    {
-        id: "1",
-        name: "Kelly Abidoye",
-        email: "kelly@example.com",
-        role: "Product Manager",
-        color: "var(--plum)",
-        stats: { assigned: 12, completed: 45, inProgress: 8 },
-    },
-    {
-        id: "2",
-        name: "Alex Chen",
-        email: "alex@example.com",
-        role: "Senior Developer",
-        color: "var(--blue)",
-        stats: { assigned: 8, completed: 62, inProgress: 5 },
-    },
-    {
-        id: "3",
-        name: "Sarah Johnson",
-        email: "sarah@example.com",
-        role: "Designer",
-        color: "var(--tan)",
-        stats: { assigned: 6, completed: 34, inProgress: 3 },
-    },
-    {
-        id: "4",
-        name: "Mike Brown",
-        email: "mike@example.com",
-        role: "Developer",
-        color: "var(--success)",
-        stats: { assigned: 10, completed: 28, inProgress: 7 },
-    },
-    {
-        id: "5",
-        name: "Emma Wilson",
-        email: "emma@example.com",
-        role: "QA Engineer",
-        color: "var(--yellow)",
-        stats: { assigned: 15, completed: 52, inProgress: 4 },
-    },
-    {
-        id: "6",
-        name: "David Lee",
-        email: "david@example.com",
-        role: "DevOps Engineer",
-        color: "var(--purple)",
-        stats: { assigned: 5, completed: 41, inProgress: 2 },
-    },
-];
+const LoadingContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 2rem;
+`;
+
+const ErrorContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 2rem;
+`;
 
 function TeamPage() {
     const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
     const [profilePanelOpen, setProfilePanelOpen] = useState(false);
     const [inviteModalOpen, setInviteModalOpen] = useState(false);
+
+    const { data: users, isLoading, isError, error, refetch } = useTeam();
+
+    // Transform API users to team members
+    const members: TeamMember[] = users ? transformUsersToTeamMembers(users) : [];
 
     const handleMemberClick = (member: TeamMember) => {
         setSelectedMember(member);
@@ -76,15 +50,81 @@ function TeamPage() {
         setProfilePanelOpen(false);
     };
 
+    if (isLoading) {
+        return (
+            <TeamPageLayout>
+                <TeamPageHeader
+                    memberCount={0}
+                    onInvite={() => setInviteModalOpen(true)}
+                />
+                <LoadingContainer>Loading team members...</LoadingContainer>
+                <InviteTeamMemberModal
+                    open={inviteModalOpen}
+                    onOpenChange={setInviteModalOpen}
+                />
+            </TeamPageLayout>
+        );
+    }
+
+    if (isError) {
+        return (
+            <TeamPageLayout>
+                <TeamPageHeader
+                    memberCount={0}
+                    onInvite={() => setInviteModalOpen(true)}
+                />
+                <ErrorContainer>
+                    <EmptyState
+                        icon="Warning"
+                        title="Failed to load team"
+                        description={error?.message || "An error occurred while loading team members"}
+                        action={<Button onClick={() => refetch()}>Retry</Button>}
+                    />
+                </ErrorContainer>
+                <InviteTeamMemberModal
+                    open={inviteModalOpen}
+                    onOpenChange={setInviteModalOpen}
+                />
+            </TeamPageLayout>
+        );
+    }
+
+    if (members.length === 0) {
+        return (
+            <TeamPageLayout>
+                <TeamPageHeader
+                    memberCount={0}
+                    onInvite={() => setInviteModalOpen(true)}
+                />
+                <ErrorContainer>
+                    <EmptyState
+                        icon="Users"
+                        title="No team members yet"
+                        description="Invite team members to start collaborating"
+                        action={
+                            <Button onClick={() => setInviteModalOpen(true)}>
+                                Invite Member
+                            </Button>
+                        }
+                    />
+                </ErrorContainer>
+                <InviteTeamMemberModal
+                    open={inviteModalOpen}
+                    onOpenChange={setInviteModalOpen}
+                />
+            </TeamPageLayout>
+        );
+    }
+
     return (
         <TeamPageLayout>
             <TeamPageHeader
-                memberCount={MOCK_MEMBERS.length}
+                memberCount={members.length}
                 onInvite={() => setInviteModalOpen(true)}
             />
             <Content>
                 <TeamMemberGrid
-                    members={MOCK_MEMBERS}
+                    members={members}
                     onMemberClick={handleMemberClick}
                 />
             </Content>

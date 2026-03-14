@@ -2,7 +2,7 @@ import styled from "styled-components";
 import * as Dropdown from "../../../design_system/Dropdown";
 import SmallProjectOpener from "../../../dropdowns/opener/SmallProjectOpener";
 import ProjectDropdownContent from "../../../dropdowns/content/ProjectDropdownContent";
-import { mockProjects } from "../../../utils/projectData";
+import { useProjects } from "../../../hooks/queries";
 
 interface SidebarProjectFieldProps {
   projectId: string | null;
@@ -25,7 +25,15 @@ const FieldLabel = styled.span`
 `;
 
 function SidebarProjectField({ projectId, onProjectChange }: SidebarProjectFieldProps) {
-  const selectedProject = mockProjects.find((p) => p.id === projectId) || null;
+  const { data: projects = [] } = useProjects();
+
+  // Transform to the format expected by the dropdown
+  const projectList = projects.map(p => ({
+    id: p.id,
+    name: p.name,
+  }));
+
+  const selectedProject = projectList.find((p) => p.id === projectId) || null;
 
   return (
     <FieldContainer>
@@ -36,7 +44,7 @@ function SidebarProjectField({ projectId, onProjectChange }: SidebarProjectField
         </Dropdown.Trigger>
         <Dropdown.Portal>
           <ProjectDropdownContent
-            projects={mockProjects}
+            projects={projectList}
             selectedProjectId={projectId}
             onProjectChange={onProjectChange}
           />

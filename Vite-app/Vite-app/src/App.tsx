@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import GlobalStyles from "./utils/GlobalStyles";
 import * as Tooltip from "./design_system/Tooltip";
 import { AppProvider } from "./contexts/AppContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import AppErrorBoundary from "./components/ErrorBoundary/AppErrorBoundary";
 import KeyboardShortcutsProvider from "./features/keyboard/KeyboardShortcutsProvider";
 import PageSuspense from "./components/Suspense/PageSuspense";
@@ -58,43 +60,82 @@ function App() {
     return (
         <AppErrorBoundary>
             <QueryClientProvider client={queryClient}>
-                <AppProvider>
-                    <KeyboardShortcutsProvider>
-                        <GlobalStyles />
-                        <Tooltip.Provider delayDuration={200}>
-                            <Suspense fallback={<PageSuspense />}>
-                                <Routes>
-                                    {/* Public routes */}
-                                    <Route path="/" element={<LandingPage />} />
-                                    <Route path="/signup" element={<SignUpPage />} />
-                                    <Route path="/login" element={<LoginPage />} />
-                                    <Route path="/loginandregister" element={<LoginAndRegisterPage />} />
-                                    <Route path="/settings" element={<SettingsPage />} />
+                <AuthProvider>
+                    <AppProvider>
+                        <KeyboardShortcutsProvider>
+                            <GlobalStyles />
+                            <Tooltip.Provider delayDuration={200}>
+                                <Suspense fallback={<PageSuspense />}>
+                                    <Routes>
+                                        {/* Public routes */}
+                                        <Route path="/" element={<LandingPage />} />
+                                        <Route path="/signup" element={<SignUpPage />} />
+                                        <Route path="/login" element={<LoginPage />} />
+                                        <Route path="/loginandregister" element={<LoginAndRegisterPage />} />
 
-                                    {/* Main app with nested routes */}
-                                    <Route path="/home" element={<HomePage />}>
-                                        <Route index element={<Navigate to={getDefaultView()} replace />} />
-                                        <Route path="issues" element={<ViewIssuesPageTable />} />
-                                        <Route path="projects" element={<ViewProjectsPageTable />} />
-                                        <Route path="sprints" element={<ViewSprintsPageTable />} />
-                                        <Route path="milestones" element={<ViewMilestonesPage />} />
-                                        <Route path="kanban" element={<KanbanBoardPage />} />
-                                        <Route path="roadmap" element={<RoadmapPage />} />
-                                        <Route path="workload" element={<WorkloadPage />} />
-                                        <Route path="analytics" element={<AnalyticsDashboardPage />} />
-                                        <Route path="calendar" element={<CalendarPage />} />
-                                        <Route path="team" element={<TeamPage />} />
-                                    </Route>
+                                        {/* Protected routes */}
+                                        <Route
+                                            path="/settings"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <SettingsPage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
 
-                                    {/* Detail pages */}
-                                    <Route path={ROUTE_PATTERNS.ISSUE_DETAIL} element={<IssueDetailPage />} />
-                                    <Route path={ROUTE_PATTERNS.PROJECT_DETAIL} element={<ProjectDetailPage />} />
-                                    <Route path={ROUTE_PATTERNS.SPRINT_DETAIL} element={<SprintDetailPage />} />
-                                </Routes>
-                            </Suspense>
-                        </Tooltip.Provider>
-                    </KeyboardShortcutsProvider>
-                </AppProvider>
+                                        {/* Main app with nested routes - protected */}
+                                        <Route
+                                            path="/home"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <HomePage />
+                                                </ProtectedRoute>
+                                            }
+                                        >
+                                            <Route index element={<Navigate to={getDefaultView()} replace />} />
+                                            <Route path="issues" element={<ViewIssuesPageTable />} />
+                                            <Route path="projects" element={<ViewProjectsPageTable />} />
+                                            <Route path="sprints" element={<ViewSprintsPageTable />} />
+                                            <Route path="milestones" element={<ViewMilestonesPage />} />
+                                            <Route path="kanban" element={<KanbanBoardPage />} />
+                                            <Route path="roadmap" element={<RoadmapPage />} />
+                                            <Route path="workload" element={<WorkloadPage />} />
+                                            <Route path="analytics" element={<AnalyticsDashboardPage />} />
+                                            <Route path="calendar" element={<CalendarPage />} />
+                                            <Route path="team" element={<TeamPage />} />
+                                        </Route>
+
+                                        {/* Detail pages - protected */}
+                                        <Route
+                                            path={ROUTE_PATTERNS.ISSUE_DETAIL}
+                                            element={
+                                                <ProtectedRoute>
+                                                    <IssueDetailPage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path={ROUTE_PATTERNS.PROJECT_DETAIL}
+                                            element={
+                                                <ProtectedRoute>
+                                                    <ProjectDetailPage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path={ROUTE_PATTERNS.SPRINT_DETAIL}
+                                            element={
+                                                <ProtectedRoute>
+                                                    <SprintDetailPage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                    </Routes>
+                                </Suspense>
+                            </Tooltip.Provider>
+                        </KeyboardShortcutsProvider>
+                    </AppProvider>
+                </AuthProvider>
             </QueryClientProvider>
         </AppErrorBoundary>
     );

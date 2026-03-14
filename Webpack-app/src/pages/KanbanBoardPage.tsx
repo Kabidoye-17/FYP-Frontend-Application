@@ -1,26 +1,10 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import KanbanBoard from "../features/kanban/KanbanBoard";
-
-export interface KanbanIssue {
-    id: string;
-    title: string;
-    description: string;
-    priority: "low" | "medium" | "high" | "urgent";
-    assignee: {
-        name: string;
-        color: string;
-    } | null;
-    labels: string[];
-    dueDate: string | null;
-}
-
-export interface KanbanColumn {
-    id: string;
-    title: string;
-    status: string;
-    issues: KanbanIssue[];
-}
+import EmptyState from "../design_system/EmptyState";
+import Button from "../design_system/Button";
+import { useIssues, useUpdateIssue } from "../hooks/queries";
+import { transformIssuesForKanban, type KanbanColumn, type KanbanIssue } from "../utils/dataHelpers";
 
 const PageContainer = styled.div`
     display: flex;
@@ -46,95 +30,44 @@ const PageTitle = styled.h1`
     margin: 0;
 `;
 
-const mockColumns: KanbanColumn[] = [
-    {
-        id: "backlog",
-        title: "Backlog",
-        status: "backlog",
-        issues: [
-            {
-                id: "1",
-                title: "Research competitor features",
-                description: "Analyze top 5 competitors and document their key features",
-                priority: "low",
-                assignee: null,
-                labels: ["research"],
-                dueDate: null,
-            },
-            {
-                id: "2",
-                title: "Update documentation",
-                description: "Review and update API documentation",
-                priority: "medium",
-                assignee: { name: "Jane Smith", color: "var(--tan)" },
-                labels: ["docs"],
-                dueDate: "2026-03-20",
-            },
-        ],
-    },
-    {
-        id: "todo",
-        title: "To Do",
-        status: "todo",
-        issues: [
-            {
-                id: "3",
-                title: "Implement dark mode",
-                description: "Add dark mode toggle and theme support",
-                priority: "high",
-                assignee: { name: "Bob Wilson", color: "var(--light-plum)" },
-                labels: ["feature", "ui"],
-                dueDate: "2026-03-15",
-            },
-        ],
-    },
-    {
-        id: "in-progress",
-        title: "In Progress",
-        status: "in progress",
-        issues: [
-            {
-                id: "4",
-                title: "Fix login redirect bug",
-                description: "Users are not being redirected after login",
-                priority: "urgent",
-                assignee: { name: "John Doe", color: "var(--plum)" },
-                labels: ["bug"],
-                dueDate: "2026-03-10",
-            },
-            {
-                id: "5",
-                title: "Add form validation",
-                description: "Implement client-side validation for signup form",
-                priority: "medium",
-                assignee: { name: "Alice Brown", color: "var(--tan)" },
-                labels: ["feature"],
-                dueDate: "2026-03-12",
-            },
-        ],
-    },
-    {
-        id: "done",
-        title: "Done",
-        status: "done",
-        issues: [
-            {
-                id: "6",
-                title: "Setup CI/CD pipeline",
-                description: "Configure GitHub Actions for automated deployment",
-                priority: "high",
-                assignee: { name: "Tom Davis", color: "var(--plum)" },
-                labels: ["devops"],
-                dueDate: "2026-03-05",
-            },
-        ],
-    },
-];
+const LoadingContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 2rem;
+`;
+
+const ErrorContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 2rem;
+`;
+
+// Map column IDs to API status values
+const columnToStatus: Record<string, string> = {
+    'backlog': 'backlog',
+    'todo': 'todo',
+    'in-progress': 'in progress',
+    'done': 'done',
+};
 
 function KanbanBoardPage() {
-    const [columns, setColumns] = useState<KanbanColumn[]>(mockColumns);
+    const { data: issues, isLoading, isError, error, refetch } = useIssues();
+    const updateIssue = useUpdateIssue();
+    const [columns, setColumns] = useState<KanbanColumn[]>([]);
+
+    // Update local state when API data changes
+    useEffect(() => {
+        if (issues) {
+            setColumns(transformIssuesForKanban(issues));
+        }
+    }, [issues]);
 
     const handleMoveIssue = (issueId: string, targetColumnId: string) => {
+        // Optimistic update
         setColumns((prevColumns) => {
             let movedIssue: KanbanIssue | null = null;
 
@@ -160,7 +93,67 @@ function KanbanBoardPage() {
 
             return prevColumns;
         });
+
+        // Persist to API
+        const newStatus = columnToStatus[targetColumnId];
+        if (newStatus) {
+            updateIssue.mutate(
+                { id: issueId, data: { status: newStatus as any } },
+                {
+                    onError: () => {
+                        // Revert on error by refetching
+                        refetch();
+                    }
+                }
+            );
+        }
     };
+
+    if (isLoading) {
+        return (
+            <PageContainer>
+                <PageHeader>
+                    <PageTitle>Kanban Board</PageTitle>
+                </PageHeader>
+                <LoadingContainer>Loading issues...</LoadingContainer>
+            </PageContainer>
+        );
+    }
+
+    if (isError) {
+        return (
+            <PageContainer>
+                <PageHeader>
+                    <PageTitle>Kanban Board</PageTitle>
+                </PageHeader>
+                <ErrorContainer>
+                    <EmptyState
+                        icon="Warning"
+                        title="Failed to load issues"
+                        description={error?.message || "An error occurred while loading the board"}
+                        action={<Button onClick={() => refetch()}>Retry</Button>}
+                    />
+                </ErrorContainer>
+            </PageContainer>
+        );
+    }
+
+    if (!issues || issues.length === 0) {
+        return (
+            <PageContainer>
+                <PageHeader>
+                    <PageTitle>Kanban Board</PageTitle>
+                </PageHeader>
+                <ErrorContainer>
+                    <EmptyState
+                        icon="Kanban"
+                        title="No issues yet"
+                        description="Create some issues to see them on the Kanban board"
+                    />
+                </ErrorContainer>
+            </PageContainer>
+        );
+    }
 
     return (
         <PageContainer>

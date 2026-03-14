@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import SprintDetailPageLayout from "./SprintDetailPageLayout";
+import EmptyState from "../../design_system/EmptyState";
+import Button from "../../design_system/Button";
+import { useSprint, useUpdateSprint } from "../../hooks/queries";
 
 export interface SprintDetail {
     id: string;
@@ -27,97 +30,103 @@ export interface SprintIssue {
     storyPoints: number;
 }
 
-const mockSprint: SprintDetail = {
-    id: "1",
-    name: "Sprint 23 - Q1 Features",
-    goal: "Complete core authentication features and improve dashboard performance",
-    status: "active",
-    startDate: "2026-03-01",
-    endDate: "2026-03-14",
-    teamId: "team-1",
-    teamName: "Engineering",
-    createdAt: "2026-02-28",
-    issues: [
-        {
-            id: "1",
-            title: "Implement OAuth2 login flow",
-            status: "done",
-            priority: "high",
-            assignee: { name: "John Doe", color: "var(--plum)" },
-            storyPoints: 5,
-        },
-        {
-            id: "2",
-            title: "Add password reset functionality",
-            status: "in progress",
-            priority: "medium",
-            assignee: { name: "Jane Smith", color: "var(--tan)" },
-            storyPoints: 3,
-        },
-        {
-            id: "3",
-            title: "Dashboard performance optimization",
-            status: "in progress",
-            priority: "high",
-            assignee: { name: "Bob Wilson", color: "var(--light-plum)" },
-            storyPoints: 8,
-        },
-        {
-            id: "4",
-            title: "Add 2FA support",
-            status: "todo",
-            priority: "medium",
-            assignee: null,
-            storyPoints: 5,
-        },
-        {
-            id: "5",
-            title: "Session management improvements",
-            status: "backlog",
-            priority: "low",
-            assignee: null,
-            storyPoints: 3,
-        },
-    ],
-};
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: var(--page-background);
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 2rem;
+  background-color: var(--page-background);
+`;
 
 function SprintDetailPage() {
     const { sprintId } = useParams();
-    const [sprint, setSprint] = useState<SprintDetail | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setSprint({ ...mockSprint, id: sprintId || "1" });
-            setIsLoading(false);
-        }, 500);
+    const { data: sprint, isLoading, isError, error } = useSprint(sprintId || '');
+    const updateSprint = useUpdateSprint();
 
-        return () => clearTimeout(timer);
-    }, [sprintId]);
+    // Transform API sprint to component format
+    const transformedSprint: SprintDetail | null = sprint ? {
+        id: sprint.id,
+        name: sprint.name,
+        goal: sprint.goal || '',
+        status: (sprint.status === 'planning' ? 'planned' : sprint.status) as SprintDetail['status'],
+        startDate: sprint.startDate?.split('T')[0] || '',
+        endDate: sprint.endDate?.split('T')[0] || '',
+        teamId: 'team-1',
+        teamName: 'Engineering',
+        createdAt: sprint.createdAt?.split('T')[0] || '',
+        issues: sprint.issues?.map(issue => ({
+            id: issue.id,
+            title: issue.title,
+            status: issue.status as SprintIssue['status'],
+            priority: issue.priority as SprintIssue['priority'],
+            assignee: null, // Brief issues don't include assignee
+            storyPoints: 0, // Would need to be fetched from full issue
+        })) || [],
+    } : null;
 
     const handleNameChange = (name: string) => {
-        if (sprint) setSprint({ ...sprint, name });
+        if (sprintId) {
+            updateSprint.mutate({ id: sprintId, data: { name } });
+        }
     };
 
     const handleGoalChange = (goal: string) => {
-        if (sprint) setSprint({ ...sprint, goal });
+        if (sprintId) {
+            updateSprint.mutate({ id: sprintId, data: { goal } });
+        }
     };
 
     const handleStatusChange = (status: SprintDetail["status"]) => {
-        if (sprint) setSprint({ ...sprint, status });
+        if (sprintId) {
+            // Map 'planned' back to 'planning' for API
+            const apiStatus = status === 'planned' ? 'planning' : status;
+            updateSprint.mutate({ id: sprintId, data: { status: apiStatus as any } });
+        }
     };
 
     const handleDatesChange = (startDate: string, endDate: string) => {
-        if (sprint) setSprint({ ...sprint, startDate, endDate });
+        if (sprintId) {
+            updateSprint.mutate({
+                id: sprintId,
+                data: {
+                    startDate: startDate || null,
+                    endDate: endDate || null
+                }
+            });
+        }
     };
 
-    if (isLoading || !sprint) {
-        return <div>Loading...</div>;
+    if (isLoading) {
+        return <LoadingContainer>Loading sprint...</LoadingContainer>;
+    }
+
+    if (isError || !transformedSprint) {
+        return (
+            <ErrorContainer>
+                <EmptyState
+                    icon="Warning"
+                    title="Sprint not found"
+                    description={error?.message || "The sprint you're looking for doesn't exist."}
+                    action={<Button onClick={() => navigate('/home/sprints')}>Back to Sprints</Button>}
+                />
+            </ErrorContainer>
+        );
     }
 
     return (
         <SprintDetailPageLayout
-            sprint={sprint}
+            sprint={transformedSprint}
             onNameChange={handleNameChange}
             onGoalChange={handleGoalChange}
             onStatusChange={handleStatusChange}

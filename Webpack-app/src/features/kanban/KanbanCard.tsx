@@ -2,7 +2,7 @@ import styled from "styled-components";
 import KanbanCardDetails from "./KanbanCardDetails";
 import Avatar from "../../design_system/Avatar";
 import Icon from "../../design_system/Icon";
-import type { KanbanIssue } from "../../pages/KanbanBoardPage";
+import type { KanbanIssue } from "../../utils/dataHelpers";
 
 interface KanbanCardProps {
     issue: KanbanIssue;

@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { useState } from "react";
 import * as Dropdown from "../../design_system/Dropdown";
 import * as Popover from "../../design_system/Popover";
 import SmallStatusOpener from "../../dropdowns/opener/SmallStatusOpener";
@@ -14,9 +13,7 @@ import SmallLabelsOpener from "../../dropdowns/opener/SmallLabelsOpener";
 import LabelsDropdownContent from "../../dropdowns/content/LabelsDropdownContent";
 import SmallTargetDateOpener from "../../dropdowns/opener/SmallTargetDateOpener";
 import TargetDatePickerContent from "../../dropdowns/content/TargetDatePickerContent";
-import { mockAssignees } from "../../utils/assigneeData";
-import { mockProjects } from "../../utils/projectData";
-import { mockLabels, type Label } from "../../utils/labelData";
+import { useTeam, useProjects, useLabels, useCreateLabel } from "../../hooks/queries";
 import type { StatusLevel, PriorityLevel } from "../../utils/issueIconMaps";
 
 const BodyContainer = styled.div`
@@ -100,7 +97,25 @@ interface CreateIssueModalBodyProps {
 }
 
 function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalBodyProps>) {
-    const [labels, setLabels] = useState<Label[]>(mockLabels);
+    const { data: teamMembers = [] } = useTeam();
+    const { data: projects = [] } = useProjects();
+    const { data: allLabels = [] } = useLabels();
+    const createLabel = useCreateLabel();
+
+    // Transform data to the format expected by dropdowns
+    const assignees = teamMembers.map(m => ({ id: m.id, name: m.name, color: m.color }));
+    const projectList = projects.map(p => ({ id: p.id, name: p.name }));
+    const labels = allLabels.map(l => ({ id: l.id, name: l.name, color: l.color }));
+
+    const handleLabelsUpdate = (updatedLabels: { id: string; name: string; color: string }[]) => {
+        // Create any new labels
+        const newLabels = updatedLabels.filter(
+            label => !allLabels.some(existing => existing.id === label.id)
+        );
+        newLabels.forEach(label => {
+            createLabel.mutate({ name: label.name, color: label.color });
+        });
+    };
 
     return (
         <BodyContainer>
@@ -142,14 +157,14 @@ function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalB
                 <Dropdown.Root>
                     <Dropdown.Trigger asChild>
                         <SmallAssigneeOpener
-                            selectedAssignees={mockAssignees.filter((a) =>
+                            selectedAssignees={assignees.filter((a) =>
                                 formData.assignees.includes(a.id)
                             )}
                         />
                     </Dropdown.Trigger>
                     <Dropdown.Portal>
                         <AssigneeDropdownContent
-                            assignees={mockAssignees}
+                            assignees={assignees}
                             selectedAssignees={formData.assignees}
                             onAssigneeChange={(ids) => onChange("assignees", ids)}
                         />
@@ -158,12 +173,12 @@ function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalB
                 <Dropdown.Root>
                     <Dropdown.Trigger asChild>
                         <SmallProjectOpener
-                            selectedProject={mockProjects.find((p) => p.id === formData.projectId) || null}
+                            selectedProject={projectList.find((p) => p.id === formData.projectId) || null}
                         />
                     </Dropdown.Trigger>
                     <Dropdown.Portal>
                         <ProjectDropdownContent
-                            projects={mockProjects}
+                            projects={projectList}
                             selectedProjectId={formData.projectId}
                             onProjectChange={(id) => onChange("projectId", id)}
                         />
@@ -182,7 +197,7 @@ function CreateIssueModalBody({ formData, onChange }: Readonly<CreateIssueModalB
                             labels={labels}
                             selectedLabels={formData.labels}
                             onLabelChange={(ids) => onChange("labels", ids)}
-                            onLabelsUpdate={setLabels}
+                            onLabelsUpdate={handleLabelsUpdate}
                         />
                     </Dropdown.Portal>
                 </Dropdown.Root>

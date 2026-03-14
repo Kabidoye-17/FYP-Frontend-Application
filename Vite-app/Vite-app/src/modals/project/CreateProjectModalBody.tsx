@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { useState } from "react";
 import * as Dropdown from "../../design_system/Dropdown";
 import * as Popover from "../../design_system/Popover";
 import SmallStatusOpener from "../../dropdowns/opener/SmallStatusOpener";
@@ -14,8 +13,7 @@ import SmallLabelsOpener from "../../dropdowns/opener/SmallLabelsOpener";
 import LabelsDropdownContent from "../../dropdowns/content/LabelsDropdownContent";
 import SmallTargetDateOpener from "../../dropdowns/opener/SmallTargetDateOpener";
 import TargetDatePickerContent from "../../dropdowns/content/TargetDatePickerContent";
-import { mockAssignees } from "../../utils/assigneeData";
-import { mockLabels, type Label } from "../../utils/labelData";
+import { useTeam, useLabels, useCreateLabel } from "../../hooks/queries";
 import type { StatusLevel, PriorityLevel } from "../../utils/issueIconMaps";
 
 const BodyContainer = styled.div`
@@ -99,7 +97,23 @@ interface CreateProjectModalBodyProps {
 }
 
 function CreateProjectModalBody({ formData, onChange }: Readonly<CreateProjectModalBodyProps>) {
-    const [labels, setLabels] = useState<Label[]>(mockLabels);
+    const { data: teamMembers = [] } = useTeam();
+    const { data: allLabels = [] } = useLabels();
+    const createLabel = useCreateLabel();
+
+    // Transform data to the format expected by dropdowns
+    const users = teamMembers.map(m => ({ id: m.id, name: m.name, color: m.color }));
+    const labels = allLabels.map(l => ({ id: l.id, name: l.name, color: l.color }));
+
+    const handleLabelsUpdate = (updatedLabels: { id: string; name: string; color: string }[]) => {
+        // Create any new labels
+        const newLabels = updatedLabels.filter(
+            label => !allLabels.some(existing => existing.id === label.id)
+        );
+        newLabels.forEach(label => {
+            createLabel.mutate({ name: label.name, color: label.color });
+        });
+    };
 
     return (
         <BodyContainer>
@@ -141,12 +155,12 @@ function CreateProjectModalBody({ formData, onChange }: Readonly<CreateProjectMo
                 <Dropdown.Root>
                     <Dropdown.Trigger asChild>
                         <SmallLeadOpener
-                            selectedLead={mockAssignees.find((a) => a.id === formData.leadId) || null}
+                            selectedLead={users.find((a) => a.id === formData.leadId) || null}
                         />
                     </Dropdown.Trigger>
                     <Dropdown.Portal>
                         <LeadDropdownContent
-                            users={mockAssignees}
+                            users={users}
                             selectedLeadId={formData.leadId}
                             onLeadChange={(id) => onChange("leadId", id)}
                         />
@@ -155,14 +169,14 @@ function CreateProjectModalBody({ formData, onChange }: Readonly<CreateProjectMo
                 <Dropdown.Root>
                     <Dropdown.Trigger asChild>
                         <SmallMembersOpener
-                            selectedMembers={mockAssignees.filter((a) =>
+                            selectedMembers={users.filter((a) =>
                                 formData.memberIds.includes(a.id)
                             )}
                         />
                     </Dropdown.Trigger>
                     <Dropdown.Portal>
                         <MembersDropdownContent
-                            users={mockAssignees}
+                            users={users}
                             selectedMemberIds={formData.memberIds}
                             onMembersChange={(ids) => onChange("memberIds", ids)}
                         />
@@ -181,7 +195,7 @@ function CreateProjectModalBody({ formData, onChange }: Readonly<CreateProjectMo
                             labels={labels}
                             selectedLabels={formData.labels}
                             onLabelChange={(ids) => onChange("labels", ids)}
-                            onLabelsUpdate={setLabels}
+                            onLabelsUpdate={handleLabelsUpdate}
                         />
                     </Dropdown.Portal>
                 </Dropdown.Root>

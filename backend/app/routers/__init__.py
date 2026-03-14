@@ -10,6 +10,7 @@ from app.routers.sprints import router as sprints_router
 from app.routers.milestones import router as milestones_router
 from app.routers.analytics import router as analytics_router
 from app.routers.notifications import router as notifications_router
+from app.routers.calendar import router as calendar_router
 
 __all__ = [
     "auth_router",
@@ -21,4 +22,5 @@ __all__ = [
     "milestones_router",
     "analytics_router",
     "notifications_router",
+    "calendar_router",
 ]

@@ -5,6 +5,7 @@ import CreateProjectModalHeader from "./CreateProjectModalHeader";
 import CreateProjectModalBody from "./CreateProjectModalBody";
 import CreateProjectModalFooter from "./CreateProjectModalFooter";
 import { showToast } from "../../utils/toast";
+import { useCreateProject } from "../../hooks/queries";
 import type { StatusLevel, PriorityLevel } from "../../utils/issueIconMaps";
 
 interface CreateProjectModalProps {
@@ -81,30 +82,37 @@ function CreateProjectModal({ open, onOpenChange }: Readonly<CreateProjectModalP
         labels: [],
         targetDate: null,
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const createProject = useCreateProject();
 
     const handleFieldChange = (field: keyof ProjectFormData, value: string | string[] | Date | null) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleSubmit = async () => {
-        setIsSubmitting(true);
-
-        try {
-            // TODO: API call to create project
-            console.log("Creating project:", formData);
-
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            showToast.success("Project created successfully!");
-            handleClose();
-        } catch (error) {
-            showToast.error("Failed to create project. Please try again.");
-            console.error("Error creating project:", error);
-        } finally {
-            setIsSubmitting(false);
-        }
+    const handleSubmit = () => {
+        createProject.mutate(
+            {
+                name: formData.name,
+                title: formData.name,
+                description: formData.description,
+                status: formData.status,
+                priority: formData.priority,
+                leadId: formData.leadId,
+                memberIds: formData.memberIds,
+                labelIds: formData.labels,
+                targetDate: formData.targetDate?.toISOString() || null,
+            },
+            {
+                onSuccess: () => {
+                    showToast.success("Project created successfully!");
+                    handleClose();
+                },
+                onError: (error) => {
+                    showToast.error("Failed to create project. Please try again.");
+                    console.error("Error creating project:", error);
+                },
+            }
+        );
     };
 
     const handleClose = () => {
@@ -134,7 +142,7 @@ function CreateProjectModal({ open, onOpenChange }: Readonly<CreateProjectModalP
                     <CreateProjectModalFooter
                         onCancel={handleClose}
                         onSubmit={handleSubmit}
-                        isSubmitting={isSubmitting}
+                        isSubmitting={createProject.isPending}
                         hasName={hasName}
                         hasDescription={hasDescription}
                     />

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import * as Dropdown from "../../../design_system/Dropdown";
 import SmallLeadOpener from "../../../dropdowns/opener/SmallLeadOpener";
 import LeadDropdownContent from "../../../dropdowns/content/LeadDropdownContent";
-import { mockAssignees } from "../../../utils/assigneeData";
+import { useTeam } from "../../../hooks/queries";
 
 interface SidebarLeadFieldProps {
   leadId: string | null;
@@ -25,7 +25,16 @@ const FieldLabel = styled.span`
 `;
 
 function SidebarLeadField({ leadId, onLeadChange }: SidebarLeadFieldProps) {
-  const selectedLead = leadId ? mockAssignees.find((a) => a.id === leadId) ?? null : null;
+  const { data: teamMembers = [] } = useTeam();
+
+  // Transform team members to user format
+  const users = teamMembers.map(member => ({
+    id: member.id,
+    name: member.name,
+    color: member.color,
+  }));
+
+  const selectedLead = leadId ? users.find((a) => a.id === leadId) ?? null : null;
 
   return (
     <FieldContainer>
@@ -36,7 +45,7 @@ function SidebarLeadField({ leadId, onLeadChange }: SidebarLeadFieldProps) {
         </Dropdown.Trigger>
         <Dropdown.Portal>
           <LeadDropdownContent
-            users={mockAssignees}
+            users={users}
             selectedLeadId={leadId}
             onLeadChange={onLeadChange}
           />

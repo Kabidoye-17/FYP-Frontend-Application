@@ -16,8 +16,9 @@ interface InputProps {
     borderColor?: string;
     value?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    disabled?: boolean;
 }
-function Input({ placeholder, type, borderColor, value, onChange }: Readonly<InputProps>) {
+function Input({ placeholder, type, borderColor, value, onChange, disabled }: Readonly<InputProps>) {
     return (
         <InputContainer
             placeholder={placeholder}
@@ -25,6 +26,7 @@ function Input({ placeholder, type, borderColor, value, onChange }: Readonly<Inp
             borderColor={borderColor}
             value={value}
             onChange={onChange}
+            disabled={disabled}
         />
     );
 }   

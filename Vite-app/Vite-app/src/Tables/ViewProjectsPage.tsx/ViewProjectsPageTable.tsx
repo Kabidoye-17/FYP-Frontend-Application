@@ -1,90 +1,55 @@
-import { useState, useEffect } from "react";
-import type { ProjectSection } from "../types/contentTypes";
+import styled from "styled-components";
 import { TableContainer } from "../ViewIssuesPage/ViewIssuesPageTable";
 import ViewProjectsPageTableSection from "./ViewProjectsPageTableSection";
 import ViewProjectsPageTableSkeleton from "./ViewProjectsPageTableSkeleton";
+import EmptyState from "../../design_system/EmptyState";
+import Button from "../../design_system/Button";
+import { useProjects } from "../../hooks/queries";
+import { groupProjectsByStatus } from "../../utils/dataHelpers";
 
-const mockSections: ProjectSection[] = [
-  {
-    title: "Backlog",
-    projects: [
-      {
-        id: "proj-001",
-        team: "Backend Team",
-        projectName: "User Authentication System",
-        lead: {
-          name: "John Smith",
-          color: "#FF6B6B"
-        },
-        priority: "High",
-        status: "Backlog"
-      },
-      {
-        id: "proj-002",
-        team: "Frontend Team",
-        projectName: "Dashboard Redesign",
-        lead: {
-          name: "Sarah Johnson",
-          color: "#4ECDC4"
-        },
-        priority: "Medium",
-        status: "Backlog"
-      }
-    ]
-  },
-  {
-    title: "In Progress",
-    projects: [
-      {
-        id: "proj-003",
-        team: "DevOps Team",
-        projectName: "CI/CD Pipeline Setup",
-        lead: {
-          name: "Mike Chen",
-          color: "#95E1D3"
-        },
-        priority: "High",
-        status: "In Progress"
-      }
-    ]
-  },
-  {
-    title: "Completed",
-    projects: [
-      {
-        id: "proj-004",
-        team: "QA Team",
-        projectName: "Automated Testing Framework",
-        lead: {
-          name: "Emma Davis",
-          color: "#F38181"
-        },
-        priority: "Medium",
-        status: "Completed"
-      }
-    ]
-  }
-];
+const ErrorContainer = styled.div`
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+`;
 
-
-function ViewIssuesPageTable() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
+function ViewProjectsPageTable() {
+  const { data: projects, isLoading, isError, error, refetch } = useProjects();
 
   if (isLoading) {
     return <ViewProjectsPageTableSkeleton />;
   }
 
+  if (isError) {
+    return (
+      <ErrorContainer>
+        <EmptyState
+          icon="Warning"
+          title="Failed to load projects"
+          description={error?.message || "An error occurred while loading projects"}
+          action={<Button onClick={() => refetch()}>Retry</Button>}
+        />
+      </ErrorContainer>
+    );
+  }
+
+  if (!projects || projects.length === 0) {
+    return (
+      <ErrorContainer>
+        <EmptyState
+          icon="FolderSimple"
+          title="No projects yet"
+          description="Create your first project to organize your work"
+        />
+      </ErrorContainer>
+    );
+  }
+
+  const sections = groupProjectsByStatus(projects);
+
   return (
     <TableContainer>
-      {mockSections.map((section) => (
+      {sections.map((section) => (
         <ViewProjectsPageTableSection
           key={section.title}
           title={section.title}
@@ -95,4 +60,4 @@ function ViewIssuesPageTable() {
   );
 }
 
-export default ViewIssuesPageTable;
+export default ViewProjectsPageTable;

@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
 import styled from "styled-components";
 import ViewSprintsPageTableSection from "./ViewSprintsPageTableSection";
 import ViewSprintsPageTableSkeleton from "./ViewSprintsPageTableSkeleton";
+import EmptyState from "../../design_system/EmptyState";
+import Button from "../../design_system/Button";
+import { useSprints } from "../../hooks/queries";
+import { groupSprintsByStatus } from "../../utils/dataHelpers";
 
 export interface Sprint {
     id: string;
     name: string;
-    status: "planned" | "active" | "completed";
+    status: string;
     startDate: string;
     endDate: string;
     issueCount: number;
@@ -26,92 +29,49 @@ const TableContainer = styled.div`
     flex: 1;
 `;
 
-const mockSections: SprintSection[] = [
-    {
-        title: "Active",
-        sprints: [
-            {
-                id: "1",
-                name: "Sprint 23 - Q1 Features",
-                status: "active",
-                startDate: "2026-03-01",
-                endDate: "2026-03-14",
-                issueCount: 12,
-                completedIssues: 5,
-                teamName: "Engineering",
-            },
-        ],
-    },
-    {
-        title: "Planned",
-        sprints: [
-            {
-                id: "2",
-                name: "Sprint 24 - Bug Fixes",
-                status: "planned",
-                startDate: "2026-03-15",
-                endDate: "2026-03-28",
-                issueCount: 8,
-                completedIssues: 0,
-                teamName: "Engineering",
-            },
-            {
-                id: "3",
-                name: "Sprint 25 - Improvements",
-                status: "planned",
-                startDate: "2026-03-29",
-                endDate: "2026-04-11",
-                issueCount: 6,
-                completedIssues: 0,
-                teamName: "Design",
-            },
-        ],
-    },
-    {
-        title: "Completed",
-        sprints: [
-            {
-                id: "4",
-                name: "Sprint 22 - Infrastructure",
-                status: "completed",
-                startDate: "2026-02-15",
-                endDate: "2026-02-28",
-                issueCount: 15,
-                completedIssues: 15,
-                teamName: "Engineering",
-            },
-            {
-                id: "5",
-                name: "Sprint 21 - MVP Launch",
-                status: "completed",
-                startDate: "2026-02-01",
-                endDate: "2026-02-14",
-                issueCount: 20,
-                completedIssues: 18,
-                teamName: "Engineering",
-            },
-        ],
-    },
-];
+const ErrorContainer = styled.div`
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+`;
 
 function ViewSprintsPageTable() {
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 1500);
-
-        return () => clearTimeout(timer);
-    }, []);
+    const { data: sprints, isLoading, isError, error, refetch } = useSprints();
 
     if (isLoading) {
         return <ViewSprintsPageTableSkeleton />;
     }
 
+    if (isError) {
+        return (
+            <ErrorContainer>
+                <EmptyState
+                    icon="Warning"
+                    title="Failed to load sprints"
+                    description={error?.message || "An error occurred while loading sprints"}
+                    action={<Button onClick={() => refetch()}>Retry</Button>}
+                />
+            </ErrorContainer>
+        );
+    }
+
+    if (!sprints || sprints.length === 0) {
+        return (
+            <ErrorContainer>
+                <EmptyState
+                    icon="Timer"
+                    title="No sprints yet"
+                    description="Create your first sprint to organize your work into time-boxed iterations"
+                />
+            </ErrorContainer>
+        );
+    }
+
+    const sections = groupSprintsByStatus(sprints);
+
     return (
         <TableContainer>
-            {mockSections.map((section) => (
+            {sections.map((section) => (
                 <ViewSprintsPageTableSection
                     key={section.title}
                     title={section.title}

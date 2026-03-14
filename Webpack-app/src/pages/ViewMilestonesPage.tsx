@@ -5,6 +5,7 @@ import CreateMilestoneModal from "../modals/milestone/CreateMilestoneModal";
 import Button from "../design_system/Button";
 import Icon from "../design_system/Icon";
 import EmptyState from "../design_system/EmptyState";
+import { useMilestones } from "../hooks/queries";
 
 export interface Milestone {
     id: string;
@@ -55,52 +56,78 @@ const MilestonesGrid = styled.div`
     flex: 1;
 `;
 
-const mockMilestones: Milestone[] = [
-    {
-        id: "1",
-        title: "v1.0 Release",
-        description: "Initial public release with core features",
-        dueDate: "2026-03-31",
-        status: "open",
-        progress: 75,
-        issueCount: 20,
-        completedIssueCount: 15,
-    },
-    {
-        id: "2",
-        title: "Authentication System",
-        description: "Complete OAuth2, SSO, and 2FA implementation",
-        dueDate: "2026-03-15",
-        status: "open",
-        progress: 90,
-        issueCount: 10,
-        completedIssueCount: 9,
-    },
-    {
-        id: "3",
-        title: "Dashboard Redesign",
-        description: "New dashboard with improved UX and performance",
-        dueDate: "2026-04-15",
-        status: "open",
-        progress: 30,
-        issueCount: 15,
-        completedIssueCount: 4,
-    },
-    {
-        id: "4",
-        title: "Beta Testing",
-        description: "Internal beta testing phase completed",
-        dueDate: "2026-02-28",
-        status: "closed",
-        progress: 100,
-        issueCount: 25,
-        completedIssueCount: 25,
-    },
-];
+const LoadingContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 2rem;
+`;
+
+const ErrorContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 2rem;
+`;
 
 function ViewMilestonesPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [milestones] = useState<Milestone[]>(mockMilestones);
+    const { data: apiMilestones, isLoading, isError, error, refetch } = useMilestones();
+
+    // Transform API milestones to component format
+    const milestones: Milestone[] = apiMilestones?.map(m => ({
+        id: m.id,
+        title: m.title,
+        description: m.description || '',
+        dueDate: m.dueDate?.split('T')[0] || '',
+        status: m.status === 'closed' ? 'closed' : 'open',
+        issueCount: m.issues?.length || 0,
+        completedIssueCount: m.issues?.filter(i => i.status === 'done' || i.status === 'completed').length || 0,
+        progress: m.issues?.length
+            ? Math.round((m.issues.filter(i => i.status === 'done' || i.status === 'completed').length / m.issues.length) * 100)
+            : 0,
+    })) || [];
+
+    if (isLoading) {
+        return (
+            <PageContainer>
+                <PageHeader>
+                    <PageTitle>Milestones</PageTitle>
+                    <CreateButton onClick={() => setIsModalOpen(true)}>
+                        <Icon name="Plus" size={16} color="currentColor" weight="bold" />
+                        New Milestone
+                    </CreateButton>
+                </PageHeader>
+                <LoadingContainer>Loading milestones...</LoadingContainer>
+                <CreateMilestoneModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+            </PageContainer>
+        );
+    }
+
+    if (isError) {
+        return (
+            <PageContainer>
+                <PageHeader>
+                    <PageTitle>Milestones</PageTitle>
+                    <CreateButton onClick={() => setIsModalOpen(true)}>
+                        <Icon name="Plus" size={16} color="currentColor" weight="bold" />
+                        New Milestone
+                    </CreateButton>
+                </PageHeader>
+                <ErrorContainer>
+                    <EmptyState
+                        icon="Warning"
+                        title="Failed to load milestones"
+                        description={error?.message || "An error occurred while loading milestones"}
+                        action={<Button onClick={() => refetch()}>Retry</Button>}
+                    />
+                </ErrorContainer>
+                <CreateMilestoneModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+            </PageContainer>
+        );
+    }
 
     return (
         <PageContainer>

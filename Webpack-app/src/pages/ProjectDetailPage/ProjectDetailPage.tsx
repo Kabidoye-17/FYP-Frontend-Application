@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import SideNavBar from "../../navigation/SideNavBar";
 import ProjectDetailPageLayout from "./ProjectDetailPageLayout";
-import type { Project, Comment, StatusLevel, PriorityLevel } from "./types/projectDetailTypes";
-import { mockAssignees } from "../../utils/assigneeData";
+import EmptyState from "../../design_system/EmptyState";
+import Button from "../../design_system/Button";
+import type { StatusLevel, PriorityLevel, Comment } from "./types/projectDetailTypes";
+import type { ProjectStatus, ProjectPriority } from "../../types/api.types";
+import { useProject, useUpdateProject } from "../../hooks/queries";
 
 const PageContainer = styled.div`
   display: flex;
@@ -18,124 +20,145 @@ const ContentContainer = styled.div`
   background-color: var(--page-background);
 `;
 
-// Mock project data for development
-const createMockProject = (id: string): Project => ({
-  id,
-  title: "Website Redesign Project",
-  description:
-    "Complete overhaul of the company website with a focus on modern design principles and improved user experience.\n\nKey objectives:\n- Modernize the visual design\n- Improve page load performance\n- Implement responsive design for mobile devices\n- Enhance accessibility compliance",
-  status: "in progress",
-  priority: "high",
-  leadId: "1",
-  memberIds: ["1", "2", "3"],
-  labels: ["label-1", "label-2"],
-  targetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-  associatedIssues: [
-    {
-      id: "1",
-      title: "Implement user authentication flow",
-      status: "in progress",
-      priority: "high",
-    },
-    {
-      id: "2",
-      title: "Design new landing page mockups",
-      status: "completed",
-      priority: "medium",
-    },
-    {
-      id: "3",
-      title: "Set up CI/CD pipeline",
-      status: "backlog",
-      priority: "low",
-    },
-    {
-      id: "4",
-      title: "Create database schema",
-      status: "in progress",
-      priority: "high",
-    },
-  ],
-  comments: [
-    {
-      id: "comment-1",
-      authorId: "1",
-      authorName: mockAssignees[0].name,
-      authorColor: mockAssignees[0].color,
-      text: "I've completed the initial design review. The new mockups look great!",
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    },
-    {
-      id: "comment-2",
-      authorId: "2",
-      authorName: mockAssignees[1].name,
-      authorColor: mockAssignees[1].color,
-      text: "Thanks! I'll start implementing the frontend components this week.",
-      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    },
-  ],
-  createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
-  updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-});
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: var(--page-background);
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  background-color: var(--page-background);
+`;
 
 function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
-  const [project, setProject] = useState<Project>(() => createMockProject(projectId || "1"));
+  const navigate = useNavigate();
+
+  const { data: project, isLoading, isError, error } = useProject(projectId || '');
+  const updateProject = useUpdateProject();
+
+  // Transform API project to component format
+  const transformedProject = project ? {
+    id: project.id,
+    title: project.title || project.name,
+    description: project.description || '',
+    status: project.status as StatusLevel,
+    priority: project.priority as PriorityLevel,
+    leadId: project.leadId,
+    memberIds: project.memberIds || [],
+    labels: project.labels?.map(l => l.id) || [],
+    targetDate: project.targetDate ? new Date(project.targetDate) : null,
+    associatedIssues: project.associatedIssues?.map(i => ({
+      id: i.id,
+      title: i.title,
+      status: i.status as StatusLevel,
+      priority: i.priority as PriorityLevel,
+    })) || [],
+    comments: [] as Comment[], // Projects don't have comments in the API
+    createdAt: new Date(project.createdAt),
+    updatedAt: new Date(project.updatedAt),
+  } : null;
 
   const handleTitleChange = (title: string) => {
-    setProject((prev) => ({ ...prev, title, updatedAt: new Date() }));
+    if (projectId) {
+      updateProject.mutate({ id: projectId, data: { title } });
+    }
   };
 
   const handleDescriptionChange = (description: string) => {
-    setProject((prev) => ({ ...prev, description, updatedAt: new Date() }));
+    if (projectId) {
+      updateProject.mutate({ id: projectId, data: { description } });
+    }
   };
 
   const handleStatusChange = (status: StatusLevel) => {
-    setProject((prev) => ({ ...prev, status, updatedAt: new Date() }));
+    if (projectId) {
+      updateProject.mutate({ id: projectId, data: { status: status as ProjectStatus } });
+    }
   };
 
   const handlePriorityChange = (priority: PriorityLevel) => {
-    setProject((prev) => ({ ...prev, priority, updatedAt: new Date() }));
+    if (projectId) {
+      updateProject.mutate({ id: projectId, data: { priority: priority as ProjectPriority } });
+    }
   };
 
   const handleLeadChange = (leadId: string | null) => {
-    setProject((prev) => ({ ...prev, leadId, updatedAt: new Date() }));
+    if (projectId) {
+      updateProject.mutate({ id: projectId, data: { leadId } });
+    }
   };
 
   const handleMembersChange = (memberIds: string[]) => {
-    setProject((prev) => ({ ...prev, memberIds, updatedAt: new Date() }));
+    if (projectId) {
+      updateProject.mutate({ id: projectId, data: { memberIds } });
+    }
   };
 
   const handleLabelsChange = (labels: string[]) => {
-    setProject((prev) => ({ ...prev, labels, updatedAt: new Date() }));
+    if (projectId) {
+      updateProject.mutate({ id: projectId, data: { labelIds: labels } });
+    }
   };
 
   const handleTargetDateChange = (targetDate: Date | null) => {
-    setProject((prev) => ({ ...prev, targetDate, updatedAt: new Date() }));
+    if (projectId) {
+      updateProject.mutate({
+        id: projectId,
+        data: { targetDate: targetDate?.toISOString() || null }
+      });
+    }
   };
 
   const handleAddComment = (text: string) => {
-    const newComment: Comment = {
-      id: `comment-${Date.now()}`,
-      authorId: "1", // Current user ID would come from auth context
-      authorName: mockAssignees[0].name,
-      authorColor: mockAssignees[0].color,
-      text,
-      createdAt: new Date(),
-    };
-    setProject((prev) => ({
-      ...prev,
-      comments: [...prev.comments, newComment],
-      updatedAt: new Date(),
-    }));
+    // Projects don't have comments in the API - could be added later
+    console.log('Add comment:', text);
   };
+
+  if (isLoading) {
+    return (
+      <PageContainer>
+        <SideNavBar />
+        <ContentContainer>
+          <LoadingContainer>
+            Loading project...
+          </LoadingContainer>
+        </ContentContainer>
+      </PageContainer>
+    );
+  }
+
+  if (isError || !transformedProject) {
+    return (
+      <PageContainer>
+        <SideNavBar />
+        <ContentContainer>
+          <ErrorContainer>
+            <EmptyState
+              icon="Warning"
+              title="Project not found"
+              description={error?.message || "The project you're looking for doesn't exist or you don't have access to it."}
+              action={<Button onClick={() => navigate('/home/projects')}>Back to Projects</Button>}
+            />
+          </ErrorContainer>
+        </ContentContainer>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
       <SideNavBar />
       <ContentContainer>
         <ProjectDetailPageLayout
-          project={project}
+          project={transformedProject}
           onTitleChange={handleTitleChange}
           onDescriptionChange={handleDescriptionChange}
           onStatusChange={handleStatusChange}

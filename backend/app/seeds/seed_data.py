@@ -7,9 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models import (
     User, Project, Issue, Sprint, Milestone, Label,
-    Comment, Activity, Notification, TimeEntry,
+    Comment, Activity, Notification, TimeEntry, CalendarEvent,
     project_members, issue_assignees, issue_labels, sprint_issues,
 )
+from app.models.calendar_event import EventType
 from app.models.user import UserRole
 from app.models.project import ProjectStatus, ProjectPriority
 from app.models.issue import IssueStatus, IssuePriority
@@ -32,12 +33,14 @@ async def seed_database(session: AsyncSession) -> None:
 
     # ========================
     # USERS (from assigneeData.ts)
+    # Demo password for all users: "password123"
     # ========================
     users = [
         User(
             id="1",
             email="alice@example.com",
             name="Alice Johnson",
+            password_hash="password123",  # Demo password
             color="#B24F9F",
             role=UserRole.ADMIN
         ),
@@ -45,6 +48,7 @@ async def seed_database(session: AsyncSession) -> None:
             id="2",
             email="bob@example.com",
             name="Bob Smith",
+            password_hash="password123",  # Demo password
             color="#6945CA",
             role=UserRole.MEMBER
         ),
@@ -52,6 +56,7 @@ async def seed_database(session: AsyncSession) -> None:
             id="3",
             email="carol@example.com",
             name="Carol Williams",
+            password_hash="password123",  # Demo password
             color="#E3C18A",
             role=UserRole.MEMBER
         ),
@@ -59,6 +64,7 @@ async def seed_database(session: AsyncSession) -> None:
             id="4",
             email="david@example.com",
             name="David Brown",
+            password_hash="password123",  # Demo password
             color="#D47EC3",
             role=UserRole.MEMBER
         ),
@@ -66,6 +72,7 @@ async def seed_database(session: AsyncSession) -> None:
             id="5",
             email="emma@example.com",
             name="Emma Davis",
+            password_hash="password123",  # Demo password
             color="#727272",
             role=UserRole.VIEWER
         ),
@@ -575,6 +582,55 @@ async def seed_database(session: AsyncSession) -> None:
     ]
     session.add_all(time_entries)
 
+    # ========================
+    # CALENDAR EVENTS
+    # ========================
+    calendar_events = [
+        CalendarEvent(
+            id="event-1",
+            title="Sprint Planning",
+            description="Plan Sprint 3 tasks and goals",
+            date=now + timedelta(days=2),
+            type=EventType.MEETING
+        ),
+        CalendarEvent(
+            id="event-2",
+            title="Q1 Release",
+            description="Major release milestone",
+            date=now + timedelta(days=5),
+            type=EventType.MILESTONE
+        ),
+        CalendarEvent(
+            id="event-3",
+            title="Code Review Session",
+            description="Review PR #234 and #235",
+            date=now + timedelta(days=1),
+            type=EventType.MEETING
+        ),
+        CalendarEvent(
+            id="event-4",
+            title="Sprint 2 Ends",
+            description="Sprint 2 completion",
+            date=now + timedelta(days=1),
+            type=EventType.SPRINT
+        ),
+        CalendarEvent(
+            id="event-5",
+            title="Design Handoff",
+            description="Review new designs with frontend team",
+            date=now + timedelta(days=6),
+            type=EventType.MEETING
+        ),
+        CalendarEvent(
+            id="event-6",
+            title="Fix auth bug deadline",
+            description="Must fix before release",
+            date=now + timedelta(days=3),
+            type=EventType.ISSUE
+        ),
+    ]
+    session.add_all(calendar_events)
+
     await session.commit()
     print("Database seeded successfully!")
 
@@ -587,7 +643,7 @@ async def clear_database(session: AsyncSession) -> None:
     await session.execute(issue_assignees.delete())
     await session.execute(project_members.delete())
 
-    for model in [TimeEntry, Notification, Activity, Comment, Issue,
+    for model in [CalendarEvent, TimeEntry, Notification, Activity, Comment, Issue,
                   Milestone, Sprint, Label, Project, User]:
         await session.execute(model.__table__.delete())
 

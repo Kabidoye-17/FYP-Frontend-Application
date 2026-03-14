@@ -1,9 +1,8 @@
-import { useState } from "react";
 import styled from "styled-components";
 import * as Dropdown from "../../../design_system/Dropdown";
 import SmallLabelsOpener from "../../../dropdowns/opener/SmallLabelsOpener";
 import LabelsDropdownContent from "../../../dropdowns/content/LabelsDropdownContent";
-import { mockLabels, type Label } from "../../../utils/labelData";
+import { useLabels, useCreateLabel } from "../../../hooks/queries";
 
 interface SidebarLabelsFieldProps {
   labels: string[];
@@ -26,8 +25,29 @@ const FieldLabel = styled.span`
 `;
 
 function SidebarLabelsField({ labels, onLabelsChange }: SidebarLabelsFieldProps) {
-  const [allLabels, setAllLabels] = useState<Label[]>(mockLabels);
-  const selectedLabels = allLabels.filter((l) => labels.includes(l.id));
+  const { data: allLabels = [] } = useLabels();
+  const createLabel = useCreateLabel();
+
+  // Transform to the format expected by the dropdown
+  const labelList = allLabels.map(l => ({
+    id: l.id,
+    name: l.name,
+    color: l.color,
+  }));
+
+  const selectedLabels = labelList.filter((l) => labels.includes(l.id));
+
+  const handleLabelsUpdate = (updatedLabels: { id: string; name: string; color: string }[]) => {
+    // Find new labels that need to be created
+    const newLabels = updatedLabels.filter(
+      label => !allLabels.some(existing => existing.id === label.id)
+    );
+
+    // Create any new labels
+    newLabels.forEach(label => {
+      createLabel.mutate({ name: label.name, color: label.color });
+    });
+  };
 
   return (
     <FieldContainer>
@@ -38,10 +58,10 @@ function SidebarLabelsField({ labels, onLabelsChange }: SidebarLabelsFieldProps)
         </Dropdown.Trigger>
         <Dropdown.Portal>
           <LabelsDropdownContent
-            labels={allLabels}
+            labels={labelList}
             selectedLabels={labels}
             onLabelChange={onLabelsChange}
-            onLabelsUpdate={setAllLabels}
+            onLabelsUpdate={handleLabelsUpdate}
           />
         </Dropdown.Portal>
       </Dropdown.Root>

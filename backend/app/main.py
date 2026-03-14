@@ -18,6 +18,7 @@ from app.routers import (
     milestones_router,
     analytics_router,
     notifications_router,
+    calendar_router,
 )
 
 
@@ -33,7 +34,7 @@ async def lifespan(app: FastAPI):
     # Import models to register them with Base.metadata
     from app.models import (
         User, Project, Issue, Sprint, Milestone, Label,
-        Comment, Activity, Notification, TimeEntry
+        Comment, Activity, Notification, TimeEntry, CalendarEvent
     )
 
     await init_db()
@@ -89,6 +90,7 @@ app.include_router(sprints_router, prefix="/api")
 app.include_router(milestones_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
 app.include_router(notifications_router, prefix="/api")
+app.include_router(calendar_router, prefix="/api")
 
 
 # Root endpoint

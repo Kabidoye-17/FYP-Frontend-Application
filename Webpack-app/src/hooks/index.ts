@@ -3,6 +3,10 @@
  * Import all hooks from a single location
  */
 
+// Query hooks (TanStack Query)
+export * from "./queries";
+
+// Utility hooks
 export { useDebounce, default as useDebounceDefault } from "./useDebounce";
 export { useLocalStorage, default as useLocalStorageDefault } from "./useLocalStorage";
 export {

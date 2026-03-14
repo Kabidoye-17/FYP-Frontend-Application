@@ -12,6 +12,7 @@ from app.models.comment import Comment
 from app.models.activity import Activity
 from app.models.notification import Notification
 from app.models.time_entry import TimeEntry
+from app.models.calendar_event import CalendarEvent
 from app.models.associations import (
     project_members,
     issue_assignees,
@@ -30,6 +31,7 @@ __all__ = [
     "Activity",
     "Notification",
     "TimeEntry",
+    "CalendarEvent",
     "project_members",
     "issue_assignees",
     "issue_labels",

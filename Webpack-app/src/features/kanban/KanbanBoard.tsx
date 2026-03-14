@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import KanbanColumn from "./KanbanColumn";
-import type { KanbanColumn as KanbanColumnType } from "../../pages/KanbanBoardPage";
+import type { KanbanColumn as KanbanColumnType } from "../../utils/dataHelpers";
 
 interface KanbanBoardProps {
     columns: KanbanColumnType[];

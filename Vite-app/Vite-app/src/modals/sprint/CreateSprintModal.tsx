@@ -5,6 +5,7 @@ import CreateSprintModalHeader from "./CreateSprintModalHeader";
 import CreateSprintModalBody from "./CreateSprintModalBody";
 import CreateSprintModalFooter from "./CreateSprintModalFooter";
 import { showToast } from "../../utils/toast";
+import { useCreateSprint } from "../../hooks/queries";
 
 interface CreateSprintModalProps {
     open: boolean;
@@ -74,27 +75,32 @@ function CreateSprintModal({ open, onOpenChange }: Readonly<CreateSprintModalPro
         teamId: null,
         goal: "",
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const createSprint = useCreateSprint();
 
     const handleFieldChange = (field: keyof SprintFormData, value: string | Date | null) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleSubmit = async () => {
-        setIsSubmitting(true);
-
-        try {
-            console.log("Creating sprint:", formData);
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            showToast.success("Sprint created successfully!");
-            handleClose();
-        } catch (error) {
-            showToast.error("Failed to create sprint. Please try again.");
-            console.error("Error creating sprint:", error);
-        } finally {
-            setIsSubmitting(false);
-        }
+    const handleSubmit = () => {
+        createSprint.mutate(
+            {
+                name: formData.name,
+                goal: formData.goal,
+                startDate: formData.startDate?.toISOString() || null,
+                endDate: formData.endDate?.toISOString() || null,
+            },
+            {
+                onSuccess: () => {
+                    showToast.success("Sprint created successfully!");
+                    handleClose();
+                },
+                onError: (error) => {
+                    showToast.error("Failed to create sprint. Please try again.");
+                    console.error("Error creating sprint:", error);
+                },
+            }
+        );
     };
 
     const handleClose = () => {
@@ -120,7 +126,7 @@ function CreateSprintModal({ open, onOpenChange }: Readonly<CreateSprintModalPro
                     <CreateSprintModalFooter
                         onCancel={handleClose}
                         onSubmit={handleSubmit}
-                        isSubmitting={isSubmitting}
+                        isSubmitting={createSprint.isPending}
                         isValid={!!isValid}
                     />
                 </DialogContent>

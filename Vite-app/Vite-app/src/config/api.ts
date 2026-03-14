@@ -78,6 +78,15 @@ export const API = {
         CREATE: `${API_BASE_URL}/labels`,
         DELETE: (id: string) => `${API_BASE_URL}/labels/${id}`,
     },
+
+    // Calendar endpoints
+    CALENDAR: {
+        LIST: `${API_BASE_URL}/calendar`,
+        DETAIL: (id: string) => `${API_BASE_URL}/calendar/${id}`,
+        CREATE: `${API_BASE_URL}/calendar`,
+        UPDATE: (id: string) => `${API_BASE_URL}/calendar/${id}`,
+        DELETE: (id: string) => `${API_BASE_URL}/calendar/${id}`,
+    },
 } as const;
 
 // Request timeout in milliseconds

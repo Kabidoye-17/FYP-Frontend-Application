@@ -5,6 +5,7 @@ import InviteTeamMemberModalHeader from "./InviteTeamMemberModalHeader";
 import InviteTeamMemberModalBody from "./InviteTeamMemberModalBody";
 import InviteTeamMemberModalFooter from "./InviteTeamMemberModalFooter";
 import { showToast } from "../../utils/toast";
+import { useInviteTeamMember } from "../../hooks/queries";
 
 interface InviteTeamMemberModalProps {
     open: boolean;
@@ -57,7 +58,8 @@ const DialogContent = styled(Dialog.Content)`
 function InviteTeamMemberModal({ open, onOpenChange }: Readonly<InviteTeamMemberModalProps>) {
     const [email, setEmail] = useState("");
     const [role, setRole] = useState("member");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const inviteTeamMember = useInviteTeamMember();
 
     const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -67,20 +69,21 @@ function InviteTeamMemberModal({ open, onOpenChange }: Readonly<InviteTeamMember
         onOpenChange(false);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
         if (!isValidEmail) return;
 
-        setIsSubmitting(true);
-        try {
-            // TODO: API call to send invite
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            showToast.success(`Invitation sent to ${email}`);
-            handleClose();
-        } catch {
-            showToast.error("Failed to send invitation. Please try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
+        inviteTeamMember.mutate(
+            { email, name: email.split('@')[0], role },
+            {
+                onSuccess: () => {
+                    showToast.success(`Invitation sent to ${email}`);
+                    handleClose();
+                },
+                onError: () => {
+                    showToast.error("Failed to send invitation. Please try again.");
+                },
+            }
+        );
     };
 
     return (
@@ -98,7 +101,7 @@ function InviteTeamMemberModal({ open, onOpenChange }: Readonly<InviteTeamMember
                     <InviteTeamMemberModalFooter
                         onCancel={handleClose}
                         onSubmit={handleSubmit}
-                        isSubmitting={isSubmitting}
+                        isSubmitting={inviteTeamMember.isPending}
                         isValid={isValidEmail}
                     />
                 </DialogContent>

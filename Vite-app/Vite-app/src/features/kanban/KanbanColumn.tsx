@@ -2,7 +2,7 @@ import styled from "styled-components";
 import KanbanColumnHeader from "./KanbanColumnHeader";
 import KanbanCard from "./KanbanCard";
 import KanbanEmptyColumn from "./KanbanEmptyColumn";
-import type { KanbanColumn as KanbanColumnType } from "../../pages/KanbanBoardPage";
+import type { KanbanColumn as KanbanColumnType } from "../../utils/dataHelpers";
 
 interface KanbanColumnProps {
     column: KanbanColumnType;

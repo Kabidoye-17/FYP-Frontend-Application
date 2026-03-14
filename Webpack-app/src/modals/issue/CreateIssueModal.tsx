@@ -5,7 +5,9 @@ import CreateIssueModalHeader from "./CreateIssueModalHeader";
 import CreateIssueModalBody from "./CreateIssueModalBody";
 import CreateIssueModalFooter from "./CreateIssueModalFooter";
 import { showToast } from "../../utils/toast";
+import { useCreateIssue } from "../../hooks/queries";
 import type { StatusLevel, PriorityLevel } from "../../utils/issueIconMaps";
+import type { IssueStatus, IssuePriority } from "../../types/api.types";
 
 interface CreateIssueModalProps {
     open: boolean;
@@ -81,30 +83,36 @@ function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps
         labels: [],
         targetDate: null,
     });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const createIssue = useCreateIssue();
 
     const handleFieldChange = (field: keyof IssueFormData, value: string | string[] | Date | null) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleSubmit = async () => {
-        setIsSubmitting(true);
-
-        try {
-            // TODO: API call to create issue
-            console.log("Creating issue:", formData);
-
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            showToast.success("Issue created successfully!");
-            handleClose();
-        } catch (error) {
-            showToast.error("Failed to create issue. Please try again.");
-            console.error("Error creating issue:", error);
-        } finally {
-            setIsSubmitting(false);
-        }
+        createIssue.mutate(
+            {
+                title: formData.heading,
+                description: formData.body,
+                status: formData.status as IssueStatus,
+                priority: formData.priority as IssuePriority,
+                assigneeIds: formData.assignees,
+                projectId: formData.projectId,
+                labelIds: formData.labels,
+                targetDate: formData.targetDate?.toISOString() || null,
+            },
+            {
+                onSuccess: () => {
+                    showToast.success("Issue created successfully!");
+                    handleClose();
+                },
+                onError: (error) => {
+                    showToast.error("Failed to create issue. Please try again.");
+                    console.error("Error creating issue:", error);
+                },
+            }
+        );
     };
 
     const handleClose = () => {
@@ -134,7 +142,7 @@ function CreateIssueModal({ open, onOpenChange }: Readonly<CreateIssueModalProps
                     <CreateIssueModalFooter
                         onCancel={handleClose}
                         onSubmit={handleSubmit}
-                        isSubmitting={isSubmitting}
+                        isSubmitting={createIssue.isPending}
                         hasHeading={hasHeading}
                         hasBody={hasBody}
                     />

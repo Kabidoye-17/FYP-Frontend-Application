@@ -80,7 +80,7 @@ module.exports = (_, argv = {}) => ({
       {
         // Process TypeScript files with ts-loader
         // include is faster than exclude — skips directory traversal outside src/
-        test: /\.(ts|tsx)$/,
+        test: /\.(ts|tsx|js|jsx)$/,
         include: path.resolve(__dirname, "src"),
         use: [
           {
@@ -90,6 +90,10 @@ module.exports = (_, argv = {}) => ({
             },
           },
         ],
+      },
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
       },
     ],
   },

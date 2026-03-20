@@ -93,11 +93,6 @@ module.exports = (_, argv = {}) => ({
           },
         ],
       },
-      {
-        // Process CSS files
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
-      },
     ],
   },
 

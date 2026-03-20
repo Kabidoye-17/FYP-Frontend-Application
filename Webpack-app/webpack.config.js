@@ -70,6 +70,7 @@ module.exports = (_, argv = {}) => ({
     ],
     splitChunks: {
       chunks: "all",
+      maxSize: 244 * 1024,
     },
     runtimeChunk: "single",
   },

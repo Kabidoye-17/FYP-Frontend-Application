@@ -2,13 +2,14 @@ import subprocess
 import csv
 import os
 import sys
-import time
+import re
 from datetime import datetime
 
 
-def get_js_bundle_size(output_dir):
+def get_bundle_size(output_dir):
     """
-    Calculate total size of all .js files in the build output directory.
+    Calculate total size of all .js files in the build output directory,
+    excluding source maps (.map).
 
     Returns:
         float: Total JS bundle size in KiB, or None if directory not found
@@ -26,7 +27,7 @@ def get_js_bundle_size(output_dir):
 
 def run_cold_build_prod():
     """
-    Run a cold production build, measure wall-clock time and bundle size from filesystem.
+    Run a cold production build, parse build time from Vite output and measure bundle size.
 
     Returns:
         tuple: (build_time_ms, bundle_size_kib) or (None, None) if failed
@@ -36,7 +37,6 @@ def run_cold_build_prod():
     output_dir = os.path.join(vite_dir, 'dist')
 
     try:
-        t_start = time.perf_counter()
         result = subprocess.run(
             'npm run clean:build',
             cwd=vite_dir,
@@ -45,18 +45,22 @@ def run_cold_build_prod():
             shell=True,
             timeout=120
         )
-        t_end = time.perf_counter()
 
         if result.returncode != 0:
             output = result.stdout + result.stderr
             print(f"\nBuild failed (exit code {result.returncode}). Output:\n{output[-800:]}")
             return None, None
 
-        build_time_ms = int((t_end - t_start) * 1000)
-        bundle_size_kib = get_js_bundle_size(output_dir)
+        output = result.stdout + result.stderr
+        match = re.search(r'built in ([\d.]+)s', output)
+        if not match:
+            print(f"\nCould not parse build time from Vite output:\n{output[-800:]}")
+            return None, None
+        build_time_ms = int(float(match.group(1)) * 1000)
+        bundle_size_kib = get_bundle_size(output_dir)
 
         if bundle_size_kib is None:
-            print(f"\nNo .js files found in {output_dir}")
+            print(f"\nNo output files found in {output_dir}")
             return None, None
 
         return build_time_ms, bundle_size_kib

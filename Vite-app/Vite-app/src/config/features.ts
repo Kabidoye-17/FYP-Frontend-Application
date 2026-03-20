@@ -3,30 +3,23 @@
  * Control feature availability across the application
  */
 
-// Feature flags from environment or defaults
+// All features are enabled
 export const FEATURES = {
-    // Core features
-    ANALYTICS_DASHBOARD: import.meta.env.VITE_FEATURE_ANALYTICS !== "false",
-    CALENDAR_VIEW: import.meta.env.VITE_FEATURE_CALENDAR !== "false",
-    TEAM_MANAGEMENT: import.meta.env.VITE_FEATURE_TEAM !== "false",
-    ROADMAP_VIEW: import.meta.env.VITE_FEATURE_ROADMAP !== "false",
-    WORKLOAD_VIEW: import.meta.env.VITE_FEATURE_WORKLOAD !== "false",
-
-    // Experimental features
-    RICH_TEXT_EDITOR: import.meta.env.VITE_FEATURE_RICH_TEXT !== "false",
-    KEYBOARD_SHORTCUTS: import.meta.env.VITE_FEATURE_KEYBOARD_SHORTCUTS !== "false",
-    COMMAND_PALETTE: import.meta.env.VITE_FEATURE_COMMAND_PALETTE !== "false",
-    BULK_OPERATIONS: import.meta.env.VITE_FEATURE_BULK_OPS !== "false",
-    IMPORT_EXPORT: import.meta.env.VITE_FEATURE_IMPORT_EXPORT !== "false",
-
-    // Integration features
-    NOTIFICATIONS: import.meta.env.VITE_FEATURE_NOTIFICATIONS !== "false",
-    TIME_TRACKING: import.meta.env.VITE_FEATURE_TIME_TRACKING !== "false",
-    DEPENDENCIES: import.meta.env.VITE_FEATURE_DEPENDENCIES !== "false",
-
-    // Debug/Dev features
+    ANALYTICS_DASHBOARD: true,
+    CALENDAR_VIEW: true,
+    TEAM_MANAGEMENT: true,
+    ROADMAP_VIEW: true,
+    WORKLOAD_VIEW: true,
+    RICH_TEXT_EDITOR: true,
+    KEYBOARD_SHORTCUTS: true,
+    COMMAND_PALETTE: true,
+    BULK_OPERATIONS: true,
+    IMPORT_EXPORT: true,
+    NOTIFICATIONS: true,
+    TIME_TRACKING: true,
+    DEPENDENCIES: true,
     DEV_TOOLS: import.meta.env.DEV,
-    MOCK_API: import.meta.env.VITE_MOCK_API === "true",
+    MOCK_API: false,
 } as const;
 
 // Helper to check if a feature is enabled

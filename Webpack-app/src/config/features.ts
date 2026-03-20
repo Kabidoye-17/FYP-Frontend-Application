@@ -3,30 +3,23 @@
  * Control feature availability across the application
  */
 
-// Feature flags from environment or defaults (Webpack uses process.env)
+// All features are enabled
 export const FEATURES = {
-    // Core features
-    ANALYTICS_DASHBOARD: process.env.REACT_APP_FEATURE_ANALYTICS !== "false",
-    CALENDAR_VIEW: process.env.REACT_APP_FEATURE_CALENDAR !== "false",
-    TEAM_MANAGEMENT: process.env.REACT_APP_FEATURE_TEAM !== "false",
-    ROADMAP_VIEW: process.env.REACT_APP_FEATURE_ROADMAP !== "false",
-    WORKLOAD_VIEW: process.env.REACT_APP_FEATURE_WORKLOAD !== "false",
-
-    // Experimental features
-    RICH_TEXT_EDITOR: process.env.REACT_APP_FEATURE_RICH_TEXT !== "false",
-    KEYBOARD_SHORTCUTS: process.env.REACT_APP_FEATURE_KEYBOARD_SHORTCUTS !== "false",
-    COMMAND_PALETTE: process.env.REACT_APP_FEATURE_COMMAND_PALETTE !== "false",
-    BULK_OPERATIONS: process.env.REACT_APP_FEATURE_BULK_OPS !== "false",
-    IMPORT_EXPORT: process.env.REACT_APP_FEATURE_IMPORT_EXPORT !== "false",
-
-    // Integration features
-    NOTIFICATIONS: process.env.REACT_APP_FEATURE_NOTIFICATIONS !== "false",
-    TIME_TRACKING: process.env.REACT_APP_FEATURE_TIME_TRACKING !== "false",
-    DEPENDENCIES: process.env.REACT_APP_FEATURE_DEPENDENCIES !== "false",
-
-    // Debug/Dev features
+    ANALYTICS_DASHBOARD: true,
+    CALENDAR_VIEW: true,
+    TEAM_MANAGEMENT: true,
+    ROADMAP_VIEW: true,
+    WORKLOAD_VIEW: true,
+    RICH_TEXT_EDITOR: true,
+    KEYBOARD_SHORTCUTS: true,
+    COMMAND_PALETTE: true,
+    BULK_OPERATIONS: true,
+    IMPORT_EXPORT: true,
+    NOTIFICATIONS: true,
+    TIME_TRACKING: true,
+    DEPENDENCIES: true,
     DEV_TOOLS: process.env.NODE_ENV === "development",
-    MOCK_API: process.env.REACT_APP_MOCK_API === "true",
+    MOCK_API: false,
 } as const;
 
 // Helper to check if a feature is enabled

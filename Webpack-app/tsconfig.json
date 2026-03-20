@@ -14,7 +14,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
 
     // Type checking
     "strict": true,
@@ -27,13 +26,11 @@
     "forceConsistentCasingInFileNames": true,
 
     // Allow importing JS files alongside TS files
-    "allowJs": true,
-
-    "noEmit": false,
+    "allowJs": true
   },
+
   "include": [
-    "src/**/*",
-    "src/global.d.ts"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",

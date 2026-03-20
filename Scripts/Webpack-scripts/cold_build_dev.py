@@ -8,29 +8,18 @@ from datetime import datetime
 
 
 def kill_process_on_port(port):
-    """
-    Find and kill any process using the specified port on Windows.
-
-    Args:
-        port: Port number to check and clean up
-    """
+    """Find and kill any process using the specified port on macOS."""
     try:
-        # Find process using the port
         result = subprocess.run(
-            f'powershell -Command "Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess"',
-            capture_output=True,
-            text=True,
-            shell=True,
-            timeout=5
+            f"lsof -ti :{port}",
+            capture_output=True, text=True, shell=True, timeout=5
         )
-
         if result.stdout.strip():
-            pid = result.stdout.strip()
-            # Kill the process
-            subprocess.run(f'taskkill /F /PID {pid}', shell=True, capture_output=True, timeout=5)
-            time.sleep(1)  # Wait for port to be released
+            for pid in result.stdout.strip().split('\n'):
+                subprocess.run(f"kill -9 {pid}", shell=True, capture_output=True, timeout=5)
+            time.sleep(1)
     except Exception:
-        pass  # Port is not in use or cleanup failed
+        pass
 
 
 def run_cold_dev_server():

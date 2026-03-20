@@ -1,21 +1,42 @@
 import subprocess
-import re
 import csv
 import os
 import sys
+import time
 from datetime import datetime
+
+
+def get_js_bundle_size(output_dir):
+    """
+    Calculate total size of all .js files in the build output directory.
+
+    Returns:
+        float: Total JS bundle size in KiB, or None if directory not found
+    """
+    total_bytes = 0
+    for root, dirs, files in os.walk(output_dir):
+        for f in files:
+            if f.endswith('.js'):
+                total_bytes += os.path.getsize(os.path.join(root, f))
+
+    if total_bytes == 0:
+        return None
+    return total_bytes / 1024
+
 
 def run_cold_build_prod():
     """
-    Run a cold production build and extract compilation time and bundle size.
+    Run a cold production build, measure wall-clock time and bundle size from filesystem.
 
     Returns:
-        tuple: (build_time_ms, bundle_size_kb) or (None, None) if failed
+        tuple: (build_time_ms, bundle_size_kib) or (None, None) if failed
     """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     vite_dir = os.path.join(script_dir, '..', '..', 'Vite-app', 'Vite-app')
+    output_dir = os.path.join(vite_dir, 'dist')
 
     try:
+        t_start = time.perf_counter()
         result = subprocess.run(
             'npm run clean:build',
             cwd=vite_dir,
@@ -24,39 +45,26 @@ def run_cold_build_prod():
             shell=True,
             timeout=120
         )
+        t_end = time.perf_counter()
 
-        output = result.stdout + result.stderr
-        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-        clean_output = ansi_escape.sub('', output)
-
-        # Pattern: "✓ built in 1.23s"
-        time_match = re.search(r'built in ([\d.]+)s', clean_output)
-
-        # Pattern: "dist/assets/index-DMZfzCFe.js   193.92 kB" or "dist/assets/index-DPH5jhNa.js  5,265.31 kB"
-        size_match = re.search(r'dist/assets/index-\w+\.js\s+([\d,]+\.?\d*)\s+(kB|KB|MB)', clean_output)
-
-        if not time_match or not size_match:
-            print(f"\nFailed to extract metrics. Output:\n{clean_output[-800:]}")
+        if result.returncode != 0:
+            output = result.stdout + result.stderr
+            print(f"\nBuild failed (exit code {result.returncode}). Output:\n{output[-800:]}")
             return None, None
 
-        build_time_s = float(time_match.group(1))
-        build_time_ms = int(build_time_s * 1000)
+        build_time_ms = int((t_end - t_start) * 1000)
+        bundle_size_kib = get_js_bundle_size(output_dir)
 
-        # Remove commas from size value before converting to float
-        size_value = float(size_match.group(1).replace(',', ''))
-        size_unit = size_match.group(2)
+        if bundle_size_kib is None:
+            print(f"\nNo .js files found in {output_dir}")
+            return None, None
 
-        # Convert to KiB
-        if size_unit in ['kB', 'KB']:
-            bundle_size_kb = size_value
-        elif size_unit == 'MB':
-            bundle_size_kb = size_value * 1024
-
-        return build_time_ms, bundle_size_kb
+        return build_time_ms, bundle_size_kib
 
     except Exception as e:
         print(f"\nBuild error: {e}")
         return None, None
+
 
 def main():
     print("Cold prod build measurements (10 runs)\n")
@@ -72,7 +80,7 @@ def main():
             sys.exit(1)
 
         results.append((build_time, bundle_size))
-        print(f"{build_time} ms, {bundle_size:.2f} kB")
+        print(f"{build_time} ms, {bundle_size:.2f} KiB")
 
     avg_time = sum(r[0] for r in results) / len(results)
     avg_size = sum(r[1] for r in results) / len(results)
@@ -87,7 +95,7 @@ def main():
 
     with open(filepath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['Build Number', 'Build Time (ms)', 'Bundle Size (kB)'])
+        writer.writerow(['Build Number', 'Build Time (ms)', 'Bundle Size (KiB)'])
 
         for i, (build_time, bundle_size) in enumerate(results, 1):
             writer.writerow([i, build_time, f"{bundle_size:.2f}"])
@@ -96,7 +104,7 @@ def main():
         writer.writerow(['Average', f'{avg_time:.2f}', f'{avg_size:.2f}'])
 
     print(f"\nSaved: {filename}")
-    print(f"Average: {avg_time:.2f} ms, {avg_size:.2f} kB")
+    print(f"Average: {avg_time:.2f} ms, {avg_size:.2f} KiB")
 
 if __name__ == "__main__":
     main()

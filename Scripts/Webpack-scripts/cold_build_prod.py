@@ -1,21 +1,42 @@
 import subprocess
-import re
 import csv
 import os
 import sys
+import time
 from datetime import datetime
+
+
+def get_js_bundle_size(output_dir):
+    """
+    Calculate total size of all .js files in the build output directory.
+
+    Returns:
+        float: Total JS bundle size in KiB, or None if directory not found
+    """
+    total_bytes = 0
+    for root, dirs, files in os.walk(output_dir):
+        for f in files:
+            if f.endswith('.js'):
+                total_bytes += os.path.getsize(os.path.join(root, f))
+
+    if total_bytes == 0:
+        return None
+    return total_bytes / 1024
+
 
 def run_cold_build_prod():
     """
-    Run a cold production build and extract compilation time and bundle size.
+    Run a cold production build, measure wall-clock time and bundle size from filesystem.
 
     Returns:
-        tuple: (build_time_ms, bundle_size_kb) or (None, None) if failed
+        tuple: (build_time_ms, bundle_size_kib) or (None, None) if failed
     """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     webpack_dir = os.path.join(script_dir, '..', '..', 'Webpack-app')
+    output_dir = os.path.join(webpack_dir, 'build')
 
     try:
+        t_start = time.perf_counter()
         result = subprocess.run(
             'npm run clean:build',
             cwd=webpack_dir,
@@ -24,37 +45,26 @@ def run_cold_build_prod():
             shell=True,
             timeout=120
         )
+        t_end = time.perf_counter()
 
-        output = result.stdout + result.stderr
-        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-        clean_output = ansi_escape.sub('', output)
-
-        # Match "compiled successfully in X ms" or "compiled with N warnings in X ms"
-        time_match = re.search(r'webpack.*compiled.*in (\d+) ms', clean_output)
-        # Match both old format "asset X.js Y KiB [minimized]" and new format "X.js (Y MiB)" from warnings
-        size_match = re.search(r'(?:asset\s+)?[\d.]+/js/\S+\.js\s+(?:\()?(\d+(?:\.\d+)?)\s+(KiB|MiB|bytes)(?:\))?', clean_output)
-
-        if not time_match or not size_match:
-            print(f"\nFailed to extract metrics. Output:\n{clean_output[-800:]}")
+        if result.returncode != 0:
+            output = result.stdout + result.stderr
+            print(f"\nBuild failed (exit code {result.returncode}). Output:\n{output[-800:]}")
             return None, None
 
-        build_time_ms = int(time_match.group(1))
-        size_value = float(size_match.group(1))
-        size_unit = size_match.group(2)
+        build_time_ms = int((t_end - t_start) * 1000)
+        bundle_size_kib = get_js_bundle_size(output_dir)
 
-        # Convert to KiB
-        if size_unit == 'KiB':
-            bundle_size_kb = size_value
-        elif size_unit == 'MiB':
-            bundle_size_kb = size_value * 1024
-        elif size_unit == 'bytes':
-            bundle_size_kb = size_value / 1024
+        if bundle_size_kib is None:
+            print(f"\nNo .js files found in {output_dir}")
+            return None, None
 
-        return build_time_ms, bundle_size_kb
+        return build_time_ms, bundle_size_kib
 
     except Exception as e:
         print(f"\nBuild error: {e}")
         return None, None
+
 
 def main():
     print("Cold prod build measurements (10 runs)\n")

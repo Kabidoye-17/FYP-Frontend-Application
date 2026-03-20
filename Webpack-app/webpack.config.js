@@ -63,10 +63,8 @@ module.exports = (_, argv = {}) => ({
   optimization: {
     minimizer: [
       new TerserPlugin({
-        parallel: true,
         terserOptions: {
           ecma: 2022,
-          compress: true,
         },
       }),
     ],

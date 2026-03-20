@@ -17,7 +17,7 @@ def run_cold_build_prod():
 
     try:
         result = subprocess.run(
-            'npm run cold:prod',
+            'npm run clean:build',
             cwd=webpack_dir,
             capture_output=True,
             text=True,

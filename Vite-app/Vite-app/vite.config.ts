@@ -4,9 +4,13 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  css: {
+    transformer: 'lightningcss',
+  },
   build: {
-    target: 'es2020',
+    target: 'es2022',
     sourcemap: 'hidden',
+    cssMinify: 'lightningcss',
     // Vite 7 defaults to 'oxc' minifier (30-90x faster than Terser) — let it use its default
     reportCompressedSize: false,
     modulePreload: { polyfill: false },

@@ -39,7 +39,12 @@ module.exports = (env = {}, argv = {}) => ({
   cache: {
     type: "filesystem",
     buildDependencies: {
-      config: [__filename],
+      config: [
+        __filename,
+        path.resolve(__dirname, ".babelrc"),
+        path.resolve(__dirname, "tsconfig.json"),
+        path.resolve(__dirname, "package.json"),
+      ],
     },
   },
 
@@ -128,11 +133,14 @@ module.exports = (env = {}, argv = {}) => ({
 
   // Optimization: code splitting, minification, and runtime extraction
   optimization: {
+    usedExports: true,
+    sideEffects: true,
+    concatenateModules: true,
     minimizer: [
       new TerserPlugin({
         parallel: true,
         terserOptions: {
-          ecma: 2020,
+          ecma: 2022,
           compress: {
             passes: 2,
           },
@@ -185,6 +193,7 @@ module.exports = (env = {}, argv = {}) => ({
 
   // Module rules: how to process different file types
   module: {
+    unsafeCache: true,
     rules: [
       {
         // Process TypeScript files with ts-loader
@@ -204,7 +213,14 @@ module.exports = (env = {}, argv = {}) => ({
         // Process JavaScript and JSX files
         test: /\.(js|jsx)$/,
         include: path.resolve(__dirname, "src"),
-        use: ["babel-loader"],
+        use: [
+          {
+            loader: "babel-loader",
+            options: {
+              cacheDirectory: true,
+            },
+          },
+        ],
       },
       {
         // Process CSS files
@@ -217,5 +233,9 @@ module.exports = (env = {}, argv = {}) => ({
   // Module resolution
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
+    modules: [path.resolve(__dirname, "node_modules"), "node_modules"],
   },
+
+  // Reduce console output in production builds
+  stats: argv.mode === "production" ? "errors-warnings" : "normal",
 });

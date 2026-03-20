@@ -46,7 +46,7 @@ def run_cold_dev_server():
     try:
         # Start the dev server
         process = subprocess.Popen(
-            'npm start',
+            'npm run clean:dev',
             cwd=webpack_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,

@@ -4,10 +4,10 @@
       "@babel/preset-env",
       {
         "targets": {
-          "chrome": "80",
-          "firefox": "78",
-          "safari": "14",
-          "edge": "80"
+          "chrome": "94",
+          "firefox": "93",
+          "safari": "16.4",
+          "edge": "94"
         },
         "modules": false
       }
